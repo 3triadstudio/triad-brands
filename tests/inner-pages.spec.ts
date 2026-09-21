@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 const routes = [
-  { path: "/", title: /Triad Studio|Branding, Digital, Print, Merch/i },
-  { path: "/about", title: /Studio|Triad Studio/i },
-  { path: "/solutions", title: /Services|Triad Studio/i },
-  { path: "/shop", title: /Shop|Triad Studio/i },
-  { path: "/contact", title: /Contact|Triad Studio/i },
+  { path: "/", title: /Triad Brands|Branding, Digital, Print, Merch/i },
+  { path: "/about", title: /Brands|Triad Brands/i },
+  { path: "/solutions", title: /Services|Triad Brands/i },
+  { path: "/shop", title: /Shop|Triad Brands/i },
+  { path: "/contact", title: /Contact|Triad Brands/i },
 ];
 
 for (const route of routes) {
@@ -14,11 +14,31 @@ for (const route of routes) {
 
     expect(response?.ok()).toBeTruthy();
     await expect(page.locator("body")).toContainText(
-      /Triad Studio|Branding|Make the brand|Shop the catalog|Contact/i,
+      /Triad Brands|Branding|Make the brand|Shop the catalog|Contact/i,
     );
     await expect(page).toHaveTitle(new RegExp(route.title, "i"));
+
+    const description = await page.locator('meta[name="description"]').getAttribute("content");
+    expect(description).toBeTruthy();
+    expect(description?.length ?? 0).toBeGreaterThanOrEqual(80);
+    expect(description?.length ?? 0).toBeLessThanOrEqual(160);
   });
 }
+
+test("core pages carry distinct titles and canonical metadata", async ({ page }) => {
+  await page.goto("/");
+  await expect(page).toHaveTitle(/Triad Brands.*(Branding|Nairobi)/i);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /https:\/\/www\.triadbrands\.co\.ke\//,
+  );
+
+  await page.goto("/about");
+  await expect(page).toHaveTitle(/about.*triad brands|triad brands.*about/i);
+
+  await page.goto("/contact");
+  await expect(page).toHaveTitle(/contact.*triad brands|triad brands.*contact/i);
+});
 
 test("shop catalog shows catalog content without crashing", async ({ page }) => {
   await page.goto("/shop");

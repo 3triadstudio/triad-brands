@@ -7,8 +7,8 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
   head: () => ({
     meta: [
-      { title: "Studio Access | Triad Studio" },
-      { name: "description", content: "Restricted administrative access for Triad Studio." },
+      { title: "Brands Access | Triad Brands" },
+      { name: "description", content: "Restricted administrative access for Triad Brands." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -60,7 +60,7 @@ function LoginPage() {
       setError(
         isRateLimited
           ? "Password recovery is temporarily rate limited. Wait a few minutes before requesting another email."
-          : "We could not send a reset link right now. Please contact the studio owner.",
+          : "We could not send a reset link right now. Please contact the brands owner.",
       );
       setResetCooldown(60);
       return;
@@ -74,8 +74,8 @@ function LoginPage() {
       <section className="login-card" aria-labelledby="login-title">
         <div className="login-brand-panel">
           <div className="login-brand-topline">
-            <img src="/TRIAD_LOGO_ON DARK.svg" alt="Triad Studio" className="h-8 w-auto" />
-            <span className="login-access-label">Studio access</span>
+            <img src="/TRIAD_LOGO_ON DARK.svg" alt="Triad Brands" className="h-8 w-auto" />
+            <span className="login-access-label">Brands access</span>
           </div>
 
           <div className="login-brand-story">
@@ -101,8 +101,8 @@ function LoginPage() {
 
         <div className="login-form-panel">
           <div className="login-mobile-logo">
-            <img src="/TRIAD_LOGO_ON DARK.svg" alt="Triad Studio" className="h-8 w-auto" />
-            <span className="login-access-label">Studio access</span>
+            <img src="/TRIAD_LOGO_ON DARK.svg" alt="Triad Brands" className="h-8 w-auto" />
+            <span className="login-access-label">Brands access</span>
           </div>
 
           <div className="login-form-content">
@@ -111,10 +111,10 @@ function LoginPage() {
               id="login-title"
               className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-white md:text-4xl"
             >
-              Sign in to the studio
+              Sign in to the brands
             </h1>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/50">
-              Access your projects, pages and studio tools.
+              Access your projects, pages and brands tools.
             </p>
 
             <form onSubmit={onSubmit} className="mt-8 space-y-5">
@@ -181,20 +181,20 @@ function LoginPage() {
 
               <button type="submit" disabled={busy} className="login-submit group">
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                {busy ? "Signing in..." : "Continue to studio"}
+                {busy ? "Signing in..." : "Continue to brands"}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </button>
             </form>
           </div>
 
           <div className="login-form-footer">
-            <span>Secure studio access</span>
+            <span>Secure brands access</span>
             <span className="login-footer-dot" aria-hidden="true" />
             <a href="mailto:3.triadstudio@gmail.com">Need help?</a>
           </div>
         </div>
       </section>
-      <p className="login-legal">Triad Studio · Nairobi, Kenya · © {new Date().getFullYear()}</p>
+      <p className="login-legal">Triad Brands · Nairobi, Kenya · © {new Date().getFullYear()}</p>
     </main>
   );
 }

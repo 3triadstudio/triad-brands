@@ -5,7 +5,7 @@ import { usePublishedPage } from "@/lib/storefront";
 export const Route = createFileRoute("/cookies")({
   component: CookiesPage,
   head: () => ({
-    meta: [{ title: "Cookie Policy — Triad Studio" }],
+    meta: [{ title: "Cookie Policy — Triad Brands" }],
     links: [{ rel: "canonical", href: "/cookies" }],
   }),
 });

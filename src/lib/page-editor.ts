@@ -238,7 +238,7 @@ export const landingPageDocument: PageDocument = {
   version: 1,
   pageId: "home",
   title: "Landing Page",
-  description: "Triad Studio storefront landing page",
+  description: "Triad Brands storefront landing page",
   blocks: [
     {
       id: "hero",
@@ -292,7 +292,7 @@ export const landingPageDocument: PageDocument = {
     },
   ],
   seo: {
-    title: "Triad Studio — We brand. You stand out.",
+    title: "Triad Brands — We brand. You stand out.",
     description: "Branding, print, digital design, and branded merchandise from Nairobi.",
     canonical: "/",
   },
@@ -317,7 +317,7 @@ function policyPage(
         label: `${title} introduction`,
         visible: true,
         mobileVisible: true,
-        content: { eyebrow: "Triad Studio", heading, body: description },
+        content: { eyebrow: "Triad Brands", heading, body: description },
         items: [],
         design: {},
       },
@@ -333,7 +333,7 @@ function policyPage(
       })),
     ],
     seo: {
-      title: `${title} — Triad Studio`,
+      title: `${title} — Triad Brands`,
       description,
       canonical: pageId === "privacy" ? "/privacy-policy" : `/${pageId}`,
     },
@@ -345,7 +345,7 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
     version: 1,
     pageId: "shop",
     title: "Shop",
-    description: "Browse branded merchandise from Triad Studio.",
+    description: "Browse branded merchandise from Triad Brands.",
     blocks: [
       {
         id: "shop_intro",
@@ -373,8 +373,8 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Shop — Triad Studio",
-      description: "Branded merchandise by Triad Studio.",
+      title: "Shop — Triad Brands",
+      description: "Branded merchandise by Triad Brands.",
       canonical: "/shop",
     },
   },
@@ -420,7 +420,7 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Solutions — Triad Studio",
+      title: "Solutions — Triad Brands",
       description: "Branding, design, print and merchandise services.",
       canonical: "/solutions",
     },
@@ -428,8 +428,8 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
   about: {
     version: 1,
     pageId: "about",
-    title: "About Triad Studio",
-    description: "An independent Nairobi creative studio.",
+    title: "About Triad Brands",
+    description: "An independent Nairobi brand studio.",
     blocks: [
       {
         id: "about_intro",
@@ -438,9 +438,9 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
         visible: true,
         mobileVisible: true,
         content: {
-          eyebrow: "Studio",
+          eyebrow: "Brands",
           heading: "Small enough to care. Serious enough to deliver.",
-          body: "Triad is an independent Nairobi studio for brands that need more than a logo and less than a revolving door of suppliers.",
+          body: "Triad is an independent Nairobi brand studio for brands that need more than a logo and less than a revolving door of suppliers.",
         },
         items: [],
         design: {},
@@ -490,16 +490,16 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "About — Triad Studio",
-      description: "Meet the independent Triad Studio team.",
+      title: "About — Triad Brands",
+      description: "Meet the independent Triad Brands team.",
       canonical: "/about",
     },
   },
   contact: {
     version: 1,
     pageId: "contact",
-    title: "Contact Triad Studio",
-    description: "Start a project with Triad Studio.",
+    title: "Contact Triad Brands",
+    description: "Start a project with Triad Brands.",
     blocks: [
       {
         id: "contact_intro",
@@ -527,8 +527,8 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Contact — Triad Studio",
-      description: "Start a brief with Triad Studio.",
+      title: "Contact — Triad Brands",
+      description: "Start a brief with Triad Brands.",
       canonical: "/contact",
     },
   },
@@ -560,8 +560,8 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Category — Triad Studio",
-      description: "Browse Triad Studio products.",
+      title: "Category — Triad Brands",
+      description: "Browse Triad Brands products.",
       canonical: "/category",
     },
   },
@@ -593,8 +593,8 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Product — Triad Studio",
-      description: "Product details from Triad Studio.",
+      title: "Product — Triad Brands",
+      description: "Product details from Triad Brands.",
       canonical: "/product",
     },
   },
@@ -602,7 +602,7 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
     version: 1,
     pageId: "work",
     title: "Selected work",
-    description: "Selected projects by Triad Studio.",
+    description: "Selected projects by Triad Brands.",
     blocks: [
       {
         id: "work_intro",
@@ -626,8 +626,8 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Work — Triad Studio",
-      description: "Selected Triad Studio projects.",
+      title: "Work — Triad Brands",
+      description: "Selected Triad Brands projects.",
       canonical: "/work",
     },
   },
@@ -635,7 +635,7 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
     "privacy",
     "Privacy Policy",
     "Your information, handled with care.",
-    "How Triad Studio collects, uses and protects information when you use this website or contact us.",
+    "How Triad Brands collects, uses and protects information when you use this website or contact us.",
     [
       {
         heading: "Information we collect",
@@ -659,7 +659,7 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
     "terms",
     "Terms of Use",
     "Clear expectations make better work.",
-    "The terms that apply when you browse this website, request a quote or engage Triad Studio.",
+    "The terms that apply when you browse this website, request a quote or engage Triad Brands.",
     [
       {
         heading: "Using this website",
@@ -671,7 +671,7 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
       {
         heading: "Intellectual property",
-        body: "Unless agreed otherwise in writing, Triad Studio retains rights in its pre-existing tools, methods and unused concepts. Rights in final approved work transfer only as stated in the relevant project agreement and after outstanding invoices are settled.",
+        body: "Unless agreed otherwise in writing, Triad Brands retains rights in its pre-existing tools, methods and unused concepts. Rights in final approved work transfer only as stated in the relevant project agreement and after outstanding invoices are settled.",
       },
       {
         heading: "Changes",
@@ -683,7 +683,7 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
     "cookies",
     "Cookie Policy",
     "A small note about cookies.",
-    "This Cookie Policy explains how Triad Studio uses cookies, browser storage and similar technologies when you visit our website. It should be read together with our Privacy Policy, which explains how information connected with these technologies may be handled.",
+    "This Cookie Policy explains how Triad Brands uses cookies, browser storage and similar technologies when you visit our website. It should be read together with our Privacy Policy, which explains how information connected with these technologies may be handled.",
     [
       {
         heading: "What cookies are",

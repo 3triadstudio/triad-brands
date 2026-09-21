@@ -246,7 +246,7 @@ function AdminShell() {
               <div className="min-w-0 text-left">
                 <p className="text-xs font-semibold leading-none text-[#0E1331]">{displayName}</p>
                 <p className="mt-1 max-w-32 truncate text-[9px] leading-none text-[#94A3B8]">
-                  {userEmail || "Triad Studio"}
+                  {userEmail || "Triad Brands"}
                 </p>
               </div>
               <ChevronDown className="ml-1 h-3.5 w-3.5 text-[#64748B]" />
@@ -366,7 +366,7 @@ function AdminShell() {
               <h2 className="text-lg font-semibold">No admin access</h2>
               <p className="mt-3 text-sm text-[#64748B]">
                 This account is signed in but does not have dashboard access yet. Share this user id
-                with the studio owner to be granted access:
+                with the Triad Brands team to be granted access:
               </p>
               <code className="mt-4 block break-all rounded-lg bg-[#F1F1EE] px-3 py-2 text-xs">
                 {data?.userId}

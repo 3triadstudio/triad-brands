@@ -285,7 +285,7 @@ function Projects({ block }: { block: PageBlock }) {
 function Founders({ block }: { block: PageBlock }) {
   const founders = [1, 2, 3].map((index) => ({
     name: block.content[`founder_${index}_name`] ?? `Founder ${index}`,
-    role: block.content[`founder_${index}_role`] ?? "Triad Studio",
+    role: block.content[`founder_${index}_role`] ?? "Triad Brands",
     bio: block.content[`founder_${index}_bio`] ?? "",
   }));
   return (

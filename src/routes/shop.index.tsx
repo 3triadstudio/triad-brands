@@ -25,19 +25,19 @@ export const Route = createFileRoute("/shop/")({
   component: ShopIndex,
   head: () => ({
     meta: [
-      { title: "Shop — Branded merchandise | Triad Studio" },
+      { title: "Shop Branded Merchandise | Triad Brands Nairobi" },
       {
         name: "description",
         content:
-          "Browse Triad Studio's managed catalog of branded apparel, drinkware, event equipment, and promotional merchandise.",
+          "Browse branded apparel, drinkware, event gear and promotional merchandise from Triad Brands in Nairobi.",
       },
-      { property: "og:title", content: "Shop — Triad Studio" },
+      { property: "og:title", content: "Shop Branded Merchandise | Triad Brands Nairobi" },
       {
         property: "og:description",
-        content: "Branded merchandise produced and delivered by Triad Studio.",
+        content: "Custom merchandise and promotional items designed for events, teams and customer touchpoints.",
       },
     ],
-    links: [{ rel: "canonical", href: "/shop" }],
+    links: [{ rel: "canonical", href: "https://www.triadbrands.co.ke/shop" }],
   }),
 });
 
@@ -79,7 +79,7 @@ function ShopIndex() {
             </h1>
             <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
               Browse live availability, choose what fits your brief, and add items to your cart.
-              Every product shown here is managed from the Triad Studio catalog.
+              Every product shown here is managed from the Triad Brands catalog.
             </p>
           </div>
           <div className="label-mono flex shrink-0 items-center gap-2 text-muted-foreground">
@@ -377,7 +377,7 @@ function ProductOrderDialog({
       notes,
     });
     const message = [
-      "Hello Triad Studio, I'd like to order a product.",
+      "Hello Triad Brands, I'd like to order a product.",
       `Product: ${product.title}`,
       `Quantity: ${quantity}`,
       `Size: ${size}`,

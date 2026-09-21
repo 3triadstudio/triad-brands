@@ -5,7 +5,7 @@ import { usePublishedPage } from "@/lib/storefront";
 export const Route = createFileRoute("/privacy-policy")({
   component: PrivacyPolicyPage,
   head: () => ({
-    meta: [{ title: "Privacy Policy — Triad Studio" }],
+    meta: [{ title: "Privacy Policy — Triad Brands" }],
     links: [{ rel: "canonical", href: "/privacy-policy" }],
   }),
 });

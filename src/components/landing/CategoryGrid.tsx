@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { ArrowUpRight, Coffee, Flag, Gift, Shirt } from "lucide-react";
 import type { PageBlockItem } from "@/lib/page-editor";
 import { catalogCategories, categorySlugFromHref } from "@/lib/catalog-data";
+import { useProducts } from "@/lib/storefront";
 
 const icons = { shirt: Shirt, mug: Coffee, flag: Flag, gift: Gift } as const;
 
@@ -14,12 +15,31 @@ export function CategoryGrid({
   items?: PageBlockItem[];
   design?: CSSProperties;
 }) {
+  const { data: products } = useProducts();
+  const liveCategories = Array.from(
+    new Map(
+      (products ?? []).map((product) => [product.category.trim().toLowerCase(), product]),
+    ).values(),
+  ).map((product) => ({
+    id: product.category,
+    name: product.category,
+    blurb: product.subtitle || product.description,
+    icon: "gift" as const,
+    slug: categorySlugFromHref(undefined, product.category),
+    href: `/category/${categorySlugFromHref(undefined, product.category)}`,
+    buttonLabel: "Browse",
+    img: product.images[0] ?? catalogCategories[0]!.img,
+  }));
   const categories = items?.length
     ? items
         .filter((item) => item.visible !== false)
         .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
         .map((item, index) => ({
-          ...catalogCategories[index % catalogCategories.length]!,
+          ...(liveCategories.find(
+            (category) => category.name.trim().toLowerCase() === item.label.trim().toLowerCase(),
+          ) ??
+            liveCategories[index] ??
+            catalogCategories[index % catalogCategories.length]!),
           id: item.id,
           name: item.label,
           blurb: item.description,
@@ -28,7 +48,9 @@ export function CategoryGrid({
           buttonLabel: item.buttonLabel || "Browse",
           img: item.image ?? catalogCategories[index % catalogCategories.length]!.img,
         }))
-    : catalogCategories.map((category) => ({
+    : liveCategories.length
+      ? liveCategories
+      : catalogCategories.map((category) => ({
         ...category,
         slug: category.id,
         href: `/category/${category.id}`,

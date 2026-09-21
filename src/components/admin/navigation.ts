@@ -6,12 +6,14 @@ import {
   MessageCircle,
   Package,
   Palette,
+  Tags,
   Wrench,
 } from "lucide-react";
 
 export const adminModules = [
   { label: "Overview", to: "/admin" as const, icon: LayoutDashboard, exact: true },
   { label: "Builder", to: "/admin/builder" as const, icon: Blocks },
+  { label: "Category studio", to: "/admin/categories" as const, icon: Tags },
   { label: "Site Settings", to: "/admin/theme" as const, icon: Palette },
   { label: "Catalog", to: "/admin/catalog" as const, icon: Package },
   { label: "WhatsApp Leads", to: "/admin/whatsapp" as const, icon: MessageCircle },

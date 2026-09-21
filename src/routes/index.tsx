@@ -11,23 +11,23 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "Triad Studio — Corporate Branding, Print & Merchandise in Nairobi" },
+      { title: "Triad Brands | Branding, Digital, Print & Merchandise in Nairobi" },
       {
         name: "description",
         content:
-          "Custom embroidery, event banners, branded gifting and office essentials, produced in-house in Nairobi with fast turnaround and bulk order pricing.",
+          "Custom branding, digital design, print production and branded merchandise for businesses in Nairobi, Kenya.",
       },
-      { property: "og:title", content: "Triad Studio — Elevate your corporate identity" },
+      { property: "og:title", content: "Triad Brands | Branding, Digital, Print & Merchandise in Nairobi" },
       {
         property: "og:description",
         content:
-          "Nairobi's in-house workshop for corporate apparel, event gear and branded merchandise. Request a custom quote today.",
+          "Bring your next campaign, product launch, or internal refresh to a team that handles strategy, design and production in one place.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: "https://www.triadbrands.co.ke/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://www.triadbrands.co.ke/" }],
   }),
 });
 

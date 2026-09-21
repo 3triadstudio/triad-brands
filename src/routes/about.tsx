@@ -9,23 +9,23 @@ export const Route = createFileRoute("/about")({
   component: StudioPage,
   head: () => ({
     meta: [
-      { title: "Studio — Triad Studio, Nairobi" },
+      { title: "About Triad Brands | Nairobi Brand Studio" },
       {
         name: "description",
         content:
-          "Triad Studio is independently owned and self-funded. Meet the studio behind the branding, digital, print and merchandise work — and how we run projects.",
+          "Learn how Triad Brands works with growing businesses in Nairobi on branding, digital strategy, design and production.",
       },
-      { property: "og:title", content: "Studio — Triad Studio" },
+      { property: "og:title", content: "About Triad Brands | Nairobi Brand Studio" },
       {
         property: "og:description",
         content:
-          "Independent, self-funded and selective: how Triad Studio works and why quality beats volume.",
+          "An independent brand studio helping businesses turn ideas into clear, useful, market-ready experiences.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/about" },
+      { property: "og:url", content: "https://www.triadbrands.co.ke/about" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/about" }],
+    links: [{ rel: "canonical", href: "https://www.triadbrands.co.ke/about" }],
   }),
 });
 
@@ -35,14 +35,14 @@ function StudioPage() {
   return (
     <>
       <section className="mx-auto max-w-[1400px] px-6 pb-20 pt-16 md:px-12 md:pb-28 md:pt-24">
-        <p className="label-mono text-accent">Studio</p>
+        <p className="label-mono text-accent">Brands</p>
         <h1 className="display mt-6 max-w-5xl text-[clamp(2.4rem,7vw,6rem)]">
           Small enough to care.
           <br />
           Serious enough to deliver<span className="text-accent">.</span>
         </h1>
         <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Triad is an independent Nairobi studio for brands that need more than a logo and less than
+          Triad is an independent Nairobi brand studio for brands that need more than a logo and less than
           a revolving door of suppliers.
         </p>
         <div className="mt-12 grid gap-10 border-t border-border pt-12 md:grid-cols-12">

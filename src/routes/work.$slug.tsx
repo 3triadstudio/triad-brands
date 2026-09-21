@@ -38,7 +38,7 @@ export const Route = createFileRoute("/work/$slug")({
     if (!loaderData) {
       return {
         meta: [
-          { title: "Project unavailable — Triad Studio" },
+          { title: "Project unavailable — Triad Brands" },
           { name: "robots", content: "noindex" },
         ],
       };
@@ -46,9 +46,9 @@ export const Route = createFileRoute("/work/$slug")({
     const { project } = loaderData;
     return {
       meta: [
-        { title: `${project.title} — Triad Studio` },
+        { title: `${project.title} — Triad Brands` },
         { name: "description", content: project.summary },
-        { property: "og:title", content: `${project.title} — Triad Studio` },
+        { property: "og:title", content: `${project.title} — Triad Brands` },
         { property: "og:description", content: project.summary },
         { property: "og:type", content: "article" },
         { property: "og:url", content: `/work/${params.slug}` },

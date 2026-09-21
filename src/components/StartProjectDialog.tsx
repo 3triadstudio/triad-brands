@@ -77,7 +77,7 @@ export function StartProjectDialog({
     try {
       const quoteMessage = quoteItems.length ? buildCartQuoteMessage(quoteItems) : "";
       const message = [
-        "Hello Triad Studio, I'd like to request a quote.",
+        "Hello Triad Brands, I'd like to request a quote.",
         `Service: ${form.service}`,
         `Starting point: ${form.scope}`,
         `Name: ${form.name}`,

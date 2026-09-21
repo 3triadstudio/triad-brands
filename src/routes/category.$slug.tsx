@@ -7,11 +7,17 @@ export const Route = createFileRoute("/category/$slug")({
   component: CategoryDetail,
   head: ({ params }) => {
     const title = getCategoryConfig(params.slug).name;
+    const description = `Explore ${title.toLowerCase()} products and solutions from Triad Brands in Nairobi.`;
     return {
       meta: [
-        { title: `${title} — Triad Studio` },
-        { name: "description", content: `Browse our ${title.toLowerCase()} solutions.` },
+        { title: `${title} | Triad Brands Nairobi` },
+        { name: "description", content: description },
+        { property: "og:title", content: `${title} | Triad Brands Nairobi` },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: `https://www.triadbrands.co.ke/category/${params.slug}` },
       ],
+      links: [{ rel: "canonical", href: `https://www.triadbrands.co.ke/category/${params.slug}` }],
     };
   },
 });
@@ -24,9 +30,15 @@ function CategoryDetail() {
   const productsBlock = pageDocument?.blocks.find((block) => block.id === "category_products");
 
   const category = getCategoryConfig(slug);
-  const acceptedCategories = category.aliases;
+  const acceptedCategories = new Set(category.aliases.map((alias) => alias.trim().toLowerCase()));
   const filtered =
-    products?.filter((p) => acceptedCategories.includes(p.category.trim().toLowerCase())) || [];
+    products?.filter((p) => {
+      const productCategory = p.category.trim().toLowerCase();
+      return (
+        acceptedCategories.has(productCategory) ||
+        productCategory.replace(/[^a-z0-9]+/g, "-") === slug.trim().toLowerCase()
+      );
+    }) || [];
   const categoryName = category.name;
   const description = category.description;
 

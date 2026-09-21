@@ -52,7 +52,7 @@ export function SiteHeader() {
           <Link to="/" className="flex min-w-0 items-center gap-3">
             <img
               src={settings?.branding.logo_url || logoOnWhite}
-              alt="Triad Studio"
+              alt="Triad Brands"
               className="h-8 w-auto shrink-0 md:h-9"
               onError={(event) => {
                 event.currentTarget.onerror = null;

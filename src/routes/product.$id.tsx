@@ -16,6 +16,21 @@ import {
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductConfigurator,
+  head: ({ params, loaderData }) => {
+    const productName = loaderData?.product?.title ?? "Product";
+    const productSummary = loaderData?.product?.subtitle ?? "Custom product detail from Triad Brands.";
+    return {
+      meta: [
+        { title: `${productName} | Triad Brands` },
+        { name: "description", content: productSummary },
+        { property: "og:title", content: `${productName} | Triad Brands` },
+        { property: "og:description", content: productSummary },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: `https://www.triadbrands.co.ke/product/${params.id}` },
+      ],
+      links: [{ rel: "canonical", href: `https://www.triadbrands.co.ke/product/${params.id}` }],
+    };
+  },
 });
 
 function ProductConfigurator() {
@@ -41,6 +56,10 @@ function ProductConfigurator() {
   const [notes, setNotes] = useState("");
   const maxQuantity =
     product?.stock_quantity && product.stock_quantity > 0 ? product.stock_quantity : 999;
+  const unitPrice =
+    product && product.sale_price !== null && product.sale_price < product.price_from
+      ? product.sale_price
+      : product?.price_from ?? 0;
 
   // Update current index when carousel changes
   useEffect(() => {
@@ -78,13 +97,13 @@ function ProductConfigurator() {
 
   const handleOrderViaWhatsApp = () => {
     const message = [
-      product.whatsapp_payload || "Hello Triad Studio, I'd like to order a product.",
+      product.whatsapp_payload || "Hello Triad Brands, I'd like to order a product.",
       `Product: ${product.title}`,
       `Quantity: ${quantity}`,
       `Size: ${selectedSize}`,
       `Color: ${selectedColor}`,
       `Special requests: ${notes || "None"}`,
-      `Price estimate: From ${formatKES(product.price_from * quantity)}`,
+      `Price estimate: From ${formatKES(unitPrice * quantity)}`,
     ].join("\n");
 
     void logClick({
@@ -100,7 +119,7 @@ function ProductConfigurator() {
     addToCart({
       id: product.id,
       title: product.title,
-      from: product.price_from,
+      from: unitPrice,
       quantity,
       size: selectedSize,
       color: selectedColor,
@@ -191,7 +210,12 @@ function ProductConfigurator() {
               <div className="mt-6">
                 <p className="label-mono text-muted-foreground">Starting from</p>
                 <p className="text-3xl font-bold text-foreground">
-                  {formatKES(product.price_from)}
+                  {formatKES(unitPrice)}
+                  {product.sale_price !== null && product.sale_price < product.price_from ? (
+                    <span className="ml-2 text-base font-normal text-muted-foreground line-through">
+                      {formatKES(product.price_from)}
+                    </span>
+                  ) : null}
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {product.stock_quantity > 0

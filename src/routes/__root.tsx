@@ -84,21 +84,32 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Triad Studio — We brand. You stand out." },
+      { title: "Triad Brands | Branding, Digital, Print & Merchandise in Nairobi" },
       {
         name: "description",
         content:
-          "Triad Studio is an independent creative studio in Nairobi: branding, digital design, print production and branded merchandise under one roof.",
+          "Triad Brands is an independent Nairobi brand studio creating brand identity, digital design, print production and branded merchandise for ambitious businesses.",
       },
-      { name: "author", content: "Triad Studio" },
-      { property: "og:title", content: "Triad Studio — We brand. You stand out." },
+      { name: "author", content: "Triad Brands" },
+      { name: "robots", content: "index, follow" },
+      { property: "og:site_name", content: "Triad Brands" },
+      { property: "og:title", content: "Triad Brands | Branding, Digital, Print & Merchandise in Nairobi" },
       {
         property: "og:description",
         content:
-          "An independent Nairobi creative studio bringing branding, design, print and merchandise together.",
+          "Independent brand strategy, digital design, print production and merchandise for businesses in Kenya and beyond.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://www.triadbrands.co.ke/" },
+      { property: "og:image", content: "https://www.triadbrands.co.ke/favicon.png" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Triad Brands | Branding, Digital, Print & Merchandise in Nairobi" },
+      {
+        name: "twitter:description",
+        content:
+          "Independent brand strategy, digital design, print production and merchandise for businesses in Kenya and beyond.",
+      },
+      { name: "twitter:image", content: "https://www.triadbrands.co.ke/favicon.png" },
     ],
     links: [
       {
@@ -106,6 +117,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "canonical", href: "https://www.triadbrands.co.ke/" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

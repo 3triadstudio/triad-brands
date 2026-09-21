@@ -52,10 +52,10 @@ const defaultContact: Contact = {
 };
 const defaultLinks: LinkItem[] = [...defaultNavigation];
 const defaultSeo: Seo = {
-  title: "Triad Studio — We brand. You stand out.",
+  title: "Triad Brands — We brand. You stand out.",
   description: "Branding, print, digital design, and branded merchandise from Nairobi.",
-  copyright: "© 2026 Triad Studio",
-  studio: "Triad Studio, Nairobi",
+  copyright: "© 2026 Triad Brands",
+  studio: "Triad Brands, Nairobi",
 };
 const defaultSocials: Socials = { instagram: "", linkedin: "", twitter: "" };
 const defaultFooter: Footer = {
@@ -229,7 +229,7 @@ function ThemeStudio() {
                   style={{ background: `linear-gradient(135deg, ${theme.navy}, ${theme.red})` }}
                 >
                   <span className="rounded-full bg-white/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
-                    Triad Studio / preview
+                    Triad Brands / preview
                   </span>
                   <p className="mt-7 text-xl font-semibold text-white">
                     We brand. You stand out<span style={{ color: theme.amber }}>.</span>

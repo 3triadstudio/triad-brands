@@ -17,23 +17,22 @@ export const Route = createFileRoute("/solutions")({
   component: ServicesPage,
   head: () => ({
     meta: [
-      { title: "Services — Branding, Digital, Print & Merch | Triad Studio" },
+      { title: "Branding, Digital & Print Services | Triad Brands" },
       {
         name: "description",
         content:
-          "Brand identity, digital design, print production, large format, branded merchandise, event collateral, art direction and brand rollout — all from one Nairobi studio.",
+          "Brand strategy, digital design, print production and branded merchandise from one Nairobi studio.",
       },
-      { property: "og:title", content: "Services — Triad Studio" },
+      { property: "og:title", content: "Branding, Digital & Print Services | Triad Brands" },
       {
         property: "og:description",
-        content:
-          "Eight disciplines under one roof: identity, digital, print, large format, merch, events, art direction and rollout.",
+        content: "Identity, web, print and merchandise support built for businesses that want clear, useful results.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/solutions" },
+      { property: "og:url", content: "https://www.triadbrands.co.ke/solutions" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/solutions" }],
+    links: [{ rel: "canonical", href: "https://www.triadbrands.co.ke/solutions" }],
   }),
 });
 

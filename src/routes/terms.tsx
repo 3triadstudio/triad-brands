@@ -5,7 +5,7 @@ import { usePublishedPage } from "@/lib/storefront";
 export const Route = createFileRoute("/terms")({
   component: TermsPage,
   head: () => ({
-    meta: [{ title: "Terms of Use — Triad Studio" }],
+    meta: [{ title: "Terms of Use — Triad Brands" }],
     links: [{ rel: "canonical", href: "/terms" }],
   }),
 });

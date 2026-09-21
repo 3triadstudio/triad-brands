@@ -15,7 +15,7 @@ export function SiteFooter() {
   const copyright =
     configuredCopyright && !/made with|❤️|♥️/iu.test(configuredCopyright)
       ? configuredCopyright
-      : `© ${new Date().getFullYear()} Triad Studio`;
+      : `© ${new Date().getFullYear()} Triad Brands`;
   const footer = settings?.footer;
   const socialLinks = managedSocialLinks?.length
     ? managedSocialLinks
@@ -68,7 +68,7 @@ export function SiteFooter() {
           <div>
             <img
               src={settings?.branding.logo_url || logoOnDark}
-              alt="Triad Studio"
+              alt="Triad Brands"
               className="h-14 w-auto max-w-[220px] object-contain object-left"
               onError={(event) => {
                 event.currentTarget.onerror = null;
@@ -127,7 +127,7 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <p className="label-mono opacity-60">Studio</p>
+            <p className="label-mono opacity-60">Brands</p>
             <ul className="mt-5 space-y-3">
               {[
                 ["About", "/about"],

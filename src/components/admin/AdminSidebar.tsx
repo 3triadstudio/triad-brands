@@ -75,7 +75,7 @@ function SidebarBrand({ mobile = false }: { mobile?: boolean }) {
         3
       </span>
       <div className={mobile ? "" : "hidden lg:block"}>
-        <p className="text-sm font-semibold leading-tight tracking-tight">Triad Studio</p>
+        <p className="text-sm font-semibold leading-tight tracking-tight">Triad Brands</p>
         <p className="mt-0.5 text-[9px] uppercase tracking-[0.18em] text-white/40">Workspace</p>
       </div>
     </div>

@@ -42,7 +42,7 @@ import { AssetLibrary, CarouselStudio } from "@/components/admin/AssetStudio";
 import { ReusableSectionsStudio } from "@/components/admin/ReusableSectionsStudio";
 
 export type StudioMode =
-  "landing" | "inner" | "legal" | "carousel" | "assets" | "sections" | "global";
+  "landing" | "inner" | "legal" | "categories" | "carousel" | "assets" | "sections" | "global";
 
 const pageOptions: Array<{
   id: PageId;
@@ -97,6 +97,7 @@ const studioMeta: Array<{ id: StudioMode; label: string; detail: string }> = [
   { id: "landing", label: "Landing studio", detail: "Home sections" },
   { id: "inner", label: "Inner pages", detail: "Shop, services & work" },
   { id: "legal", label: "Legal studio", detail: "Privacy, terms & cookies" },
+  { id: "categories", label: "Category studio", detail: "Homepage category cards" },
   { id: "carousel", label: "Carousel studio", detail: "Hero slides" },
   { id: "assets", label: "Asset studio", detail: "Media library" },
   { id: "sections", label: "Sections studio", detail: "Reusable patterns" },
@@ -109,7 +110,9 @@ export function StructuredPageBuilder({
   initialStudio?: StudioMode;
 }) {
   const [studioMode, setStudioMode] = useState<StudioMode>(initialStudio);
-  const [pageId, setPageId] = useState<PageId>(initialStudio === "landing" ? "home" : "solutions");
+  const [pageId, setPageId] = useState<PageId>(
+    initialStudio === "landing" || initialStudio === "categories" ? "home" : "solutions",
+  );
   const [document, setDocument] = useState<PageDocument>(() => getDefaultPageDocument("home"));
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
@@ -132,9 +135,13 @@ export function StructuredPageBuilder({
   useEffect(() => {
     const next = createDocument(pageId, pageRecord?.draft);
     setDocument(next);
-    setSelectedBlockId(next.blocks[0]?.id ?? null);
+    setSelectedBlockId(
+      studioMode === "categories"
+        ? (next.blocks.find((block) => block.id === "categories")?.id ?? null)
+        : (next.blocks[0]?.id ?? null),
+    );
     setDirty(false);
-  }, [pageId, pageRecord?.draft]);
+  }, [pageId, pageRecord?.draft, studioMode]);
 
   const saveMutation = useMutation({
     mutationFn: () => savePageDraftFn({ data: { document } }),
@@ -178,8 +185,15 @@ export function StructuredPageBuilder({
 
   const selectedBlock = document.blocks.find((block) => block.id === selectedBlockId) ?? null;
   const pageOption = pageOptions.find((option) => option.id === pageId) ?? pageOptions[0]!;
-  const visiblePageOptions = pageOptions.filter((option) => option.studio === studioMode);
-  const isPageStudio = studioMode === "landing" || studioMode === "inner" || studioMode === "legal";
+  const visiblePageOptions = pageOptions.filter(
+    (option) =>
+      option.studio === studioMode || (studioMode === "categories" && option.id === "home"),
+  );
+  const isPageStudio =
+    studioMode === "landing" ||
+    studioMode === "inner" ||
+    studioMode === "legal" ||
+    studioMode === "categories";
 
   useEffect(() => {
     if (!dirty) return;
@@ -267,6 +281,7 @@ export function StructuredPageBuilder({
     if (nextStudio === "landing") setPageId("home");
     if (nextStudio === "inner") setPageId("solutions");
     if (nextStudio === "legal") setPageId("privacy");
+    if (nextStudio === "categories") setPageId("home");
   };
 
   return (
@@ -279,9 +294,11 @@ export function StructuredPageBuilder({
             ? "Keep every inner page consistent."
             : studioMode === "legal"
               ? "Keep policy pages clear and current."
-              : studioMode === "global"
-                ? "Control the shared site system."
-                : "Manage the parts that make the site move."
+              : studioMode === "categories"
+                ? "Shape the category cards customers browse first."
+                : studioMode === "global"
+                  ? "Control the shared site system."
+                  : "Manage the parts that make the site move."
       }
       description="Give each part of the website its own focused workspace, with clear drafts, live data, and safe publishing."
       action={
@@ -352,7 +369,9 @@ export function StructuredPageBuilder({
                   ? "Landing page"
                   : studioMode === "inner"
                     ? "Inner pages"
-                    : "Legal pages"
+                    : studioMode === "legal"
+                      ? "Legal pages"
+                      : "Category section"
               }
               detail="Choose a document to edit"
             />
@@ -566,9 +585,35 @@ export function StructuredPageBuilder({
                   ) : null}
                 </div>
 
-                {selectedBlock.items.length ? (
+                {selectedBlock.items.length || selectedBlock.kind === "categories" ? (
                   <div className="border-t border-[#EAECF0] pt-5">
-                    <h3 className="text-xs font-semibold text-[#344054]">Cards</h3>
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-xs font-semibold text-[#344054]">Cards</h3>
+                      {selectedBlock.kind === "categories" ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateBlock(selectedBlock.id, (block) => ({
+                              ...block,
+                              items: [
+                                ...block.items,
+                                {
+                                  id: `category-${Date.now()}`,
+                                  label: "New category",
+                                  description: "Add a short description",
+                                  href: "/category/apparel",
+                                  buttonLabel: "Browse",
+                                  sortOrder: block.items.length,
+                                },
+                              ],
+                            }))
+                          }
+                          className="rounded-lg border border-[#D0D5DD] px-2.5 py-1.5 text-[11px] font-semibold text-[#344054] hover:border-[#ED1D2B] hover:text-[#B42318]"
+                        >
+                          Add category
+                        </button>
+                      ) : null}
+                    </div>
                     <div className="mt-3 space-y-3">
                       {selectedBlock.items.map((item, index) => (
                         <div key={item.id} className="rounded-xl border border-[#EAECF0] p-3">

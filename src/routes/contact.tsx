@@ -15,29 +15,29 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
   head: () => ({
     meta: [
-      { title: "Contact — Triad Studio, Nairobi" },
+      { title: "Contact Triad Brands | Nairobi Brand Studio" },
       {
         name: "description",
         content:
-          "Tell Triad Studio what you're building, when you need it and what success looks like. We reply to enquiries within 2 hours.",
+          "Start a brief with Triad Brands in Nairobi for branding, digital design, print and merchandise work.",
       },
-      { property: "og:title", content: "Contact — Triad Studio" },
+      { property: "og:title", content: "Contact Triad Brands | Nairobi Brand Studio" },
       {
         property: "og:description",
-        content: "Start a brief with Triad Studio in Nairobi. Replies within 2 hours.",
+        content: "Tell us what you are building and we will help shape the right next step.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/contact" },
+      { property: "og:url", content: "https://www.triadbrands.co.ke/contact" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/contact" }],
+    links: [{ rel: "canonical", href: "https://www.triadbrands.co.ke/contact" }],
     scripts: [
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "Triad Studio",
+          name: "Triad Brands",
           email: "hello@triad.studio",
           address: { "@type": "PostalAddress", addressLocality: "Nairobi", addressCountry: "KE" },
           sameAs: socials.map((s) => s.href),
@@ -89,12 +89,12 @@ function ContactPage() {
               </p>
             </div>
             <div className="mt-12 border-t border-primary-foreground/15 pt-6">
-              <p className="label-mono text-primary-foreground/45">Studio note</p>
+              <p className="label-mono text-primary-foreground/45">Brands note</p>
               <p className="mt-3 text-sm leading-relaxed text-primary-foreground/70">
                 &quot;The best projects are clear about the problem, curious about the answer, and
                 open to making something useful.&quot;
               </p>
-              <p className="mt-5 text-xs text-primary-foreground/45">Triad Studio / Nairobi</p>
+              <p className="mt-5 text-xs text-primary-foreground/45">Triad Brands / Nairobi</p>
             </div>
           </div>
 

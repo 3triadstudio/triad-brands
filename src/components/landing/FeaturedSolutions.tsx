@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, ShoppingCart, Star } from "lucide-react";
-import { featuredProducts, formatKES } from "@/lib/catalog-data";
+import { formatKES } from "@/lib/catalog-data";
 import { useProducts } from "@/lib/storefront";
 
 export function FeaturedSolutions({
@@ -12,20 +12,21 @@ export function FeaturedSolutions({
   design?: CSSProperties;
 }) {
   const { data: remoteProducts } = useProducts();
-  const products = remoteProducts?.length
-    ? remoteProducts
-        .filter((product) => product.featured)
-        .map((product) => ({
-          id: product.id,
-          badge: product.badges[0] ?? "Featured",
-          category: product.category,
-          title: product.title,
-          rating: 5,
-          reviews: 0,
-          from: product.price_from,
-          img: product.images?.[0] ?? product.image_url ?? featuredProducts[0]!.img,
-        }))
-    : featuredProducts;
+  const products = (remoteProducts ?? [])
+    .filter((product) => product.featured)
+    .map((product) => ({
+      id: product.id,
+      badge: product.badges[0] ?? "Featured",
+      category: product.category,
+      title: product.title,
+      rating: 5,
+      reviews: 0,
+      from: product.sale_price !== null && product.sale_price < product.price_from
+        ? product.sale_price
+        : product.price_from,
+      img: product.images[0] ?? null,
+    }))
+    .filter((product): product is typeof product & { img: string } => Boolean(product.img));
 
   return (
     <section

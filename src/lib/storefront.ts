@@ -99,10 +99,10 @@ export const defaultNavigation: NavigationItem[] = [
 ];
 
 export const defaultSeo: SeoSettings = {
-  title: "Triad Studio — We brand. You stand out.",
+  title: "Triad Brands — We brand. You stand out.",
   description: "Branding, print, digital design, and branded merchandise from Nairobi.",
-  copyright: "© 2026 Triad Studio",
-  studio: "Triad Studio, Nairobi",
+  copyright: "© 2026 Triad Brands",
+  studio: "Triad Brands, Nairobi",
 };
 
 export const defaultSocials: SocialSettings = {
@@ -338,7 +338,10 @@ export function useProducts() {
         .eq("active", true)
         .order("sort_order", { ascending: true });
       if (error) throw new Error(error.message);
-      return (data ?? []) as unknown as DbProduct[];
+      return ((data ?? []) as unknown as DbProduct[]).map((product) => ({
+        ...product,
+        images: product.images?.length ? product.images : product.image_url ? [product.image_url] : [],
+      }));
     },
   });
 }

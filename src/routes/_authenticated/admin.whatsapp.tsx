@@ -258,7 +258,7 @@ function LeadRow({
   onStatus: (status: Lead["status"]) => void;
   onDelete: () => void;
 }) {
-  const responseHref = `https://wa.me/${lead.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi ${lead.name || "there"}, thanks for reaching out to Triad Studio about ${lead.product_title || "your project"}. We are reviewing your request and will be back with a quote shortly.`)}`;
+  const responseHref = `https://wa.me/${lead.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi ${lead.name || "there"}, thanks for reaching out to Triad Brands about ${lead.product_title || "your project"}. We are reviewing your request and will be back with a quote shortly.`)}`;
   return (
     <article className="grid gap-4 px-5 py-5 lg:grid-cols-[minmax(210px,1.2fr)_minmax(180px,1fr)_150px_160px_42px] lg:items-center lg:px-6">
       <div className="flex items-start gap-3">
