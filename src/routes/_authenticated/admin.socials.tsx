@@ -80,7 +80,7 @@ function SocialsAdmin() {
     <AdminPage
       eyebrow="Distribution"
       title="Keep every public doorway current."
-      description="Links that connect the studio to its wider network, shown in the footer."
+      description="Links that connect the brand to its wider network, shown in the footer."
       action={
         <button
           type="button"

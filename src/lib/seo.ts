@@ -67,7 +67,7 @@ export const pageCopy = {
     path: "/contact",
     title: "Contact Triad Brands | Branding & Print Quotes in Nairobi",
     description:
-      "Request a quote for branding, printing or branded merchandise in Nairobi. Send a short brief and the studio replies with a practical next step.",
+      "Request a quote for branding, printing or branded merchandise in Nairobi. Send a short brief and the team replies with a practical next step.",
   },
   work: {
     path: "/work",

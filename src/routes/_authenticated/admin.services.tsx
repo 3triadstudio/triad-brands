@@ -111,7 +111,7 @@ function ServicesAdmin() {
           ) : rows.length === 0 ? (
             <EmptyState
               title="No services yet"
-              detail="Add the capabilities customers should see when they visit the studio."
+              detail="Add the capabilities customers should see when they visit the site."
             />
           ) : (
             rows.map((r) => (

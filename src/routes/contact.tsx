@@ -43,7 +43,7 @@ function ContactPage() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,color-mix(in_oklab,var(--accent)_18%,transparent),transparent_42%),linear-gradient(180deg,transparent_0%,color-mix(in_oklab,var(--accent)_8%,transparent)_100%)]" />
       <div className="relative mx-auto max-w-[1120px] px-5 pb-24 pt-20 md:px-10 md:pb-32 md:pt-28">
         <header className="mx-auto max-w-3xl text-center">
-          <p className="label-mono text-accent">Contact the studio</p>
+          <p className="label-mono text-accent">Contact us</p>
           <h1 className="display mt-7 text-[clamp(3.5rem,9vw,7.5rem)] leading-[0.9]">
             Let&apos;s make
             <br />
@@ -69,7 +69,7 @@ function ContactPage() {
               </p>
             </div>
             <div className="mt-12 border-t border-primary-foreground/15 pt-6">
-              <p className="label-mono text-primary-foreground/45">Studio note</p>
+              <p className="label-mono text-primary-foreground/45">Our note</p>
               <p className="mt-3 text-sm leading-relaxed text-primary-foreground/70">
                 &quot;The best projects are clear about the problem, curious about the answer, and
                 open to making something useful.&quot;

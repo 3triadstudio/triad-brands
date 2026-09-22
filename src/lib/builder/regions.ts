@@ -107,12 +107,12 @@ function footerDocument(): BuilderDocument {
               }),
             ]),
             node("container", { gap: 12 }, [
-              node("eyebrow", { text: "Studio", accent: false }),
+              node("eyebrow", { text: "Company", accent: false }),
               node("nav", {
                 source: "custom",
                 direction: "column",
                 items: [
-                  { label: "About the studio", link: { ...emptyLink, href: "/about" } },
+                  { label: "About us", link: { ...emptyLink, href: "/about" } },
                   { label: "Contact", link: { ...emptyLink, href: "/contact" } },
                 ],
               }),
@@ -124,7 +124,7 @@ function footerDocument(): BuilderDocument {
                 direction: "column",
                 items: [
                   {
-                    label: "Email the studio",
+                    label: "Email us",
                     link: { ...emptyLink, href: `mailto:${defaultContacts.email}` },
                   },
                 ],

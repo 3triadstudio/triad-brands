@@ -211,7 +211,7 @@ function AdminShell() {
             <p className="text-sm text-[#6B7280]">Checking access…</p>
           ) : !access.data?.canViewDashboard ? (
             <div className="rounded-2xl border border-[#E5E7EB] bg-white p-8 shadow-sm">
-              <h2 className="text-lg font-semibold">No studio access yet</h2>
+              <h2 className="text-lg font-semibold">No access yet</h2>
               <p className="mt-3 text-sm text-[#6B7280]">
                 This account is signed in but doesn't have a role assigned. Share this ID with a
                 Triad Brands administrator to be granted access:

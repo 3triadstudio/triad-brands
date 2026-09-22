@@ -137,7 +137,11 @@ function SiteSettingsAdmin() {
 
   if (settings.isPending) {
     return (
-      <AdminPage eyebrow="Studio" title="Site settings, under one roof." description="Loading…">
+      <AdminPage
+        eyebrow="Triad Brands"
+        title="Site settings, under one roof."
+        description="Loading…"
+      >
         <Panel>
           <AdminLoading label="Loading settings" />
         </Panel>
@@ -147,7 +151,7 @@ function SiteSettingsAdmin() {
 
   return (
     <AdminPage
-      eyebrow="Studio"
+      eyebrow="Triad Brands"
       title="Site settings, under one roof."
       description="Brand tokens, contact details, SEO, and the little things every page depends on."
       action={<StatusPill status="Realtime connected" />}
@@ -346,7 +350,7 @@ function SiteSettingsAdmin() {
       <SettingsSection
         icon={SettingsIcon}
         title="SEO metadata"
-        detail="Default title, description, and studio copyright"
+        detail="Default title, description, and copyright"
         onSave={() => saveMutation.mutate({ key: "seo", value: seo })}
         saving={saveMutation.isPending}
       >
@@ -373,7 +377,7 @@ function SiteSettingsAdmin() {
                 onChange={(e) => setSeo({ ...seo, copyright: e.target.value })}
               />
             </Field>
-            <Field label="Studio location">
+            <Field label="Business location">
               <input
                 className={inputClass}
                 value={seo.studio}

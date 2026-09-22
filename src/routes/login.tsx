@@ -10,10 +10,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/login")({
   component: LoginPage,
   head: () => ({
-    meta: [
-      { title: "Studio Access | Triad Brands" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
+    meta: [{ title: "Sign In | Triad Brands" }, { name: "robots", content: "noindex, nofollow" }],
   }),
 });
 
@@ -81,7 +78,7 @@ function LoginPage() {
     if (!canViewDashboard(role)) {
       await supabase.auth.signOut();
       setBusy(false);
-      setError("That account doesn't have studio access. Ask an administrator to grant it.");
+      setError("That account doesn't have dashboard access. Ask an administrator to grant it.");
       return;
     }
 
@@ -153,7 +150,7 @@ function LoginPage() {
           <header className="flex items-center justify-between gap-4">
             <p className="text-lg font-extrabold tracking-tight text-[#0E1331]">TRIAD BRANDS</p>
             <span className="rounded-full border border-[#E5E7EB] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6B7280]">
-              Studio CMS
+              Triad Brands CMS
             </span>
           </header>
 
@@ -225,7 +222,7 @@ function LoginPage() {
               </button>
 
               <p className="mt-5 text-center text-xs text-[#6B7280]">
-                Studio access is invite only — ask an administrator to add you.
+                Access is invite only — ask an administrator to add you.
               </p>
             </form>
           </div>

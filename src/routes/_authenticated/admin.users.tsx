@@ -62,7 +62,7 @@ function UsersAdmin() {
     <AdminPage
       eyebrow="Access control"
       title="Users & roles"
-      description="Invite teammates and manage who can sign in to the studio."
+      description="Invite teammates and manage who can sign in to the dashboard."
       action={
         <button
           type="button"
