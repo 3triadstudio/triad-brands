@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { LazyBuilderCanvas } from "@/components/builder/LazyBuilderCanvas";
 import { isBuilderDocument } from "@/lib/builder/types";
-import { ArrowUpRight, Facebook, Globe, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+import { ArrowUpRight, Globe } from "lucide-react";
+import { commonSocialIcons } from "@/lib/social-icons";
 import { socials } from "@/lib/site-data";
 import { StartProjectDialog } from "@/components/StartProjectDialog";
 import {
@@ -28,15 +29,6 @@ export function SiteFooter() {
   const socialLinks = managedSocialLinks?.length
     ? managedSocialLinks
     : socials.map((social) => ({ ...social, icon_key: social.label.toLowerCase() }));
-  const socialIcons = {
-    facebook: Facebook,
-    globe: Globe,
-    instagram: Instagram,
-    linkedin: Linkedin,
-    twitter: Twitter,
-    x: Twitter,
-    youtube: Youtube,
-  } as const;
   if (isBuilderDocument(region)) {
     return (
       <footer id="contact" className="px-3 pb-3 md:px-6 md:pb-6" data-cms-block="global-footer">
@@ -179,8 +171,7 @@ export function SiteFooter() {
             </a>
             <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
               {socialLinks.map((s) => {
-                const Icon =
-                  socialIcons[s.icon_key.toLowerCase() as keyof typeof socialIcons] ?? Globe;
+                const Icon = commonSocialIcons[s.icon_key.toLowerCase()] ?? Globe;
                 return (
                   <a
                     key={s.label}

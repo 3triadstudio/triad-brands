@@ -3,9 +3,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link2, Pencil, Plus, Trash2 } from "lucide-react";
+import { DynamicIcon, type IconName } from "lucide-react/dynamic";
 import { toast } from "sonner";
 import { deleteSocialLink, listAllSocialLinks, upsertSocialLink } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { IconPicker } from "@/components/admin/IconPicker";
 import {
   AdminPage,
   AdminLoading,
@@ -110,13 +112,23 @@ function SocialsAdmin() {
                 key={r.id}
                 className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#E5E7EB] bg-white p-5"
               >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-[#111827]">
-                    {r.label || "Untitled link"}
-                  </p>
-                  <p className="mt-1 truncate text-xs text-[#6B7280]">{r.href || "No URL"}</p>
-                  <div className="mt-2">
-                    <StatusPill status={r.active ? "Active" : "Inactive"} />
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#F3F4F6] text-[#4B5563]">
+                    <DynamicIcon
+                      name={(r.icon_key || "globe") as IconName}
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                      fallback={() => <Link2 className="h-4 w-4" aria-hidden="true" />}
+                    />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-[#111827]">
+                      {r.label || "Untitled link"}
+                    </p>
+                    <p className="mt-1 truncate text-xs text-[#6B7280]">{r.href || "No URL"}</p>
+                    <div className="mt-2">
+                      <StatusPill status={r.active ? "Active" : "Inactive"} />
+                    </div>
                   </div>
                 </div>
                 <div className="flex shrink-0 gap-1">
@@ -163,14 +175,11 @@ function SocialsAdmin() {
                 onChange={(e) => setDraft({ ...draft, href: e.target.value })}
               />
             </Field>
-            <Field label="Icon key">
-              <input
-                className={inputClass}
-                value={draft.icon_key}
-                placeholder="instagram"
-                onChange={(e) => setDraft({ ...draft, icon_key: e.target.value })}
-              />
-            </Field>
+            <IconPicker
+              label="Icon"
+              value={draft.icon_key}
+              onChange={(icon_key) => setDraft({ ...draft, icon_key })}
+            />
             <Field label="Sort order">
               <input
                 type="number"
