@@ -9,7 +9,7 @@ export function WhatsAppFloating() {
   if (!settings?.contacts.whatsapp) return null;
 
   const whatsappNumber = settings.contacts.whatsapp.replace(/\D/g, "");
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hi%20Triad%20Studio%2C%20I%27m%20interested%20in%20your%20services`;
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hi%20Triad%20Brands%2C%20I%27d%20like%20to%20ask%20about%20branding%20and%20branded%20merchandise`;
 
   return (
     <a

@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { LazyBuilderCanvas } from "@/components/builder/LazyBuilderCanvas";
+import { isBuilderDocument } from "@/lib/builder/types";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { StartProjectDialog } from "@/components/StartProjectDialog";
 import { useCart } from "@/lib/cart";
-import { useSiteSettings } from "@/lib/storefront";
+import { usePublishedPage, useSiteSettings } from "@/lib/storefront";
 import { Cart } from "@/components/Cart";
+import { optimizeImageUrl } from "@/lib/utils";
 
 const nav = [
   { label: "About", href: "/about" },
@@ -16,6 +19,7 @@ const nav = [
 const logoOnWhite = "/TRIAD_LOGO_ON WHITE.svg";
 
 export function SiteHeader() {
+  const { data: region } = usePublishedPage("header");
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: settings } = useSiteSettings();
   const cartItems = useCart();
@@ -45,14 +49,31 @@ export function SiteHeader() {
     };
   }, [mobileOpen]);
 
+  // A published header region replaces the built-in markup entirely, so every
+  // link, label and logo inside it is editable from the builder.
+  if (isBuilderDocument(region)) {
+    return (
+      <header
+        className="sticky top-0 z-50 px-3 pt-3 md:px-6 md:pt-5"
+        data-cms-block="global-header"
+      >
+        <div className="mx-auto max-w-[1400px] rounded-[1.35rem] border border-border bg-background/90 px-4 py-1 shadow-[0_12px_40px_color-mix(in_oklab,var(--foreground)_6%,transparent)] backdrop-blur-xl md:px-5">
+          <LazyBuilderCanvas root={region.root} />
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="sticky top-0 z-50 px-3 pt-3 md:px-6 md:pt-5" data-cms-block="global-header">
       <div className="mx-auto max-w-[1400px] rounded-[1.35rem] border border-border bg-background/90 px-4 py-3 shadow-[0_12px_40px_color-mix(in_oklab,var(--foreground)_6%,transparent)] backdrop-blur-xl md:px-5">
         <div className="flex items-center justify-between gap-4">
           <Link to="/" className="flex min-w-0 items-center gap-3">
             <img
-              src={settings?.branding.logo_url || logoOnWhite}
+              src={optimizeImageUrl(settings?.branding.logo_url || logoOnWhite, 180)}
               alt="Triad Brands"
+              width={180}
+              height={64}
               className="h-8 w-auto shrink-0 md:h-9"
               onError={(event) => {
                 event.currentTarget.onerror = null;
@@ -103,7 +124,10 @@ export function SiteHeader() {
           </div>
         </div>
         {mobileOpen ? (
-          <nav id="mobile-navigation" className="mt-4 grid gap-1 border-t border-border pt-3 md:hidden">
+          <nav
+            id="mobile-navigation"
+            className="mt-4 grid gap-1 border-t border-border pt-3 md:hidden"
+          >
             {links.map((link) => (
               <Link
                 key={`${link.label}-${link.href}`}

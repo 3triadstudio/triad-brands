@@ -1,26 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Wrench } from "lucide-react";
+import { Pencil, Plus, Trash2, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { deleteService, listAllServices, upsertService } from "@/lib/admin.functions";
-import { AdminModal, Field, RowActions, inputClass } from "@/components/admin/AdminField";
+import { supabase } from "@/integrations/supabase/client";
 import {
+  AdminPage,
   AdminError,
   AdminLoading,
-  AdminPage,
   EmptyState,
+  Field,
+  Modal,
+  ModalFooter,
   Panel,
   PanelHeading,
   StatusPill,
+  inputClass,
 } from "@/components/admin/ui";
 
 export const Route = createFileRoute("/_authenticated/admin/services")({
   component: ServicesAdmin,
 });
 
-interface Row {
+type Row = {
   id?: string;
   tag: string;
   name: string;
@@ -28,7 +32,7 @@ interface Row {
   deliverables: string[];
   sort_order: number;
   active: boolean;
-}
+};
 
 const blank: Row = { tag: "", name: "", detail: "", deliverables: [], sort_order: 0, active: true };
 
@@ -45,9 +49,20 @@ function ServicesAdmin() {
     queryFn: () => list({}),
   });
 
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-services-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "services" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin-services"] }),
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [qc]);
+
   const mutate = useMutation({
-    mutationFn: (row: Row) =>
-      save({ data: { ...row, sort_order: Number(row.sort_order) || 0 } as never }),
+    mutationFn: (row: Row) => save({ data: row as never }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-services"] });
       setDraft(null);
@@ -55,245 +70,197 @@ function ServicesAdmin() {
     },
     onError: () => toast.error("Could not save service"),
   });
-
   const destroy = useMutation({
     mutationFn: (id: string) => remove({ data: { id } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-services"] });
       toast.success("Service deleted");
-      setDeleting(null);
     },
     onError: () => toast.error("Could not delete service"),
   });
 
-  if (isPending) return <AdminLoading label="Loading services" />;
-  if (isError) {
-    return <AdminError detail="Services could not be loaded." onRetry={() => void refetch()} />;
-  }
   const rows = (data ?? []) as Row[];
 
   return (
     <AdminPage
       eyebrow="Offer architecture"
       title="Make the service menu unmistakable."
-      description="Clarify what Triad does, how it helps, and what a customer can expect to receive."
+      description="What Triad does, how it helps, and what a customer can expect to receive."
       action={
         <button
           type="button"
           onClick={() => setDraft({ ...blank })}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#FF7A00] px-4 py-3 text-xs font-semibold text-[#0F1217]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#111827] px-4 text-xs font-semibold text-white hover:bg-[#1F2937]"
         >
-          <Plus className="h-3.5 w-3.5" /> New service
+          <Plus className="h-3.5 w-3.5" aria-hidden="true" /> New service
         </button>
       }
     >
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Mini label="Total services" value={rows.length} />
-        <Mini label="Active" value={rows.filter((row) => row.active).length} tone="green" />
-        <Mini label="Hidden" value={rows.filter((row) => !row.active).length} tone="amber" />
-      </div>
       <Panel>
         <PanelHeading
           icon={Wrench}
           title="Service library"
-          detail={`${rows.length} offerings · ordered by sort value`}
-          action={<StatusPill status="Public content" />}
+          detail={`${rows.length} offerings`}
+          action={<StatusPill status="Realtime connected" />}
         />
-        <div className="space-y-4 p-4 md:p-6">
-          {draft && (
-            <AdminModal
-              title={draft.id ? "Edit service" : "New service"}
-              subtitle="Define the service details shown on the public site."
-              onClose={() => setDraft(null)}
-            >
-              <ServiceForm
-                row={draft}
-                onSave={(r) => mutate.mutate(r)}
-                onCancel={() => setDraft(null)}
-                saving={mutate.isPending}
-              />
-            </AdminModal>
-          )}
-          {rows.map((r) => (
-            <article
-              key={r.id!}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius)] border border-border p-5"
-            >
-              <div>
-                <p className="font-medium">{r.name || "Untitled service"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {r.tag || "No tag"} · {r.active ? "Active" : "Inactive"}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDraft({ ...r })}
-                  className="label-mono rounded-full border border-border px-4 py-2"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeleting(r)}
-                  className="label-mono rounded-full border border-white/10 px-4 py-2 text-red-300"
-                >
-                  Delete
-                </button>
-              </div>
-            </article>
-          ))}
-          {rows.length === 0 && !draft ? (
+        <div className="space-y-3 p-4 md:p-6">
+          {isPending ? (
+            <AdminLoading label="Loading services" />
+          ) : isError ? (
+            <AdminError detail="Services could not be loaded." onRetry={() => void refetch()} />
+          ) : rows.length === 0 ? (
             <EmptyState
               title="No services yet"
               detail="Add the capabilities customers should see when they visit the studio."
             />
-          ) : null}
-          {deleting && (
-            <AdminModal
-              title="Delete service?"
-              subtitle={`This will remove ${deleting.name || "this service"} from the public site.`}
-              onClose={() => setDeleting(null)}
-            >
-              <div className="space-y-5 p-6">
-                <p className="rounded-xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-200">
-                  This action cannot be undone.
-                </p>
-                <div className="flex justify-end gap-2">
+          ) : (
+            rows.map((r) => (
+              <article
+                key={r.id}
+                className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#E5E7EB] bg-white p-5"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-[#111827]">
+                    {r.name || "Untitled service"}
+                  </p>
+                  <p className="mt-1 text-xs text-[#6B7280]">{r.tag || "No tag"}</p>
+                  <div className="mt-2">
+                    <StatusPill status={r.active ? "Active" : "Inactive"} />
+                  </div>
+                </div>
+                <div className="flex shrink-0 gap-1">
                   <button
                     type="button"
-                    onClick={() => setDeleting(null)}
-                    className="label-mono rounded-full border border-white/10 px-4 py-2"
+                    onClick={() => setDraft({ ...r })}
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-[#E5E7EB] px-3 text-xs font-semibold text-[#111827] hover:border-[#ED1D2B] hover:text-[#ED1D2B]"
                   >
-                    Cancel
+                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" /> Edit
                   </button>
                   <button
                     type="button"
-                    onClick={() => destroy.mutate(deleting.id!)}
-                    className="label-mono rounded-full bg-red-500 px-4 py-2 text-white"
+                    onClick={() => setDeleting(r)}
+                    className="grid min-h-10 min-w-10 place-items-center rounded-xl text-[#9CA3AF] hover:bg-[#FEF2F2] hover:text-[#991B1B]"
+                    aria-label={`Delete ${r.name}`}
                   >
-                    Confirm delete
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
-              </div>
-            </AdminModal>
+              </article>
+            ))
           )}
         </div>
       </Panel>
+
+      {draft ? (
+        <Modal
+          title={draft.id ? "Edit service" : "New service"}
+          subtitle="Define the service details shown on the public site."
+          onClose={() => setDraft(null)}
+        >
+          <div className="space-y-4 p-5 md:p-6">
+            <div className="grid gap-4 md:grid-cols-3">
+              <Field label="Name">
+                <input
+                  className={inputClass}
+                  value={draft.name}
+                  onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                />
+              </Field>
+              <Field label="Tag">
+                <input
+                  className={inputClass}
+                  value={draft.tag}
+                  onChange={(e) => setDraft({ ...draft, tag: e.target.value })}
+                />
+              </Field>
+              <Field label="Sort order">
+                <input
+                  type="number"
+                  className={inputClass}
+                  value={draft.sort_order}
+                  onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) })}
+                />
+              </Field>
+            </div>
+            <Field label="Detail">
+              <textarea
+                className={`${inputClass} min-h-24 resize-y`}
+                value={draft.detail}
+                onChange={(e) => setDraft({ ...draft, detail: e.target.value })}
+              />
+            </Field>
+            <Field label="Deliverables (comma separated)">
+              <input
+                className={inputClass}
+                value={draft.deliverables.join(", ")}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    deliverables: e.target.value
+                      .split(",")
+                      .map((s) => s.trim())
+                      .filter(Boolean),
+                  })
+                }
+              />
+            </Field>
+            <label className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
+              <input
+                type="checkbox"
+                checked={draft.active}
+                onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
+              />
+              Active
+            </label>
+          </div>
+          <ModalFooter
+            onCancel={() => setDraft(null)}
+            onSave={() => mutate.mutate(draft)}
+            saving={mutate.isPending}
+            {...(draft.id
+              ? {
+                  onDelete: () => {
+                    setDeleting(draft);
+                    setDraft(null);
+                  },
+                }
+              : {})}
+          />
+        </Modal>
+      ) : null}
+
+      {deleting ? (
+        <Modal
+          title="Delete service?"
+          subtitle={`This will remove ${deleting.name || "this service"} from the public site.`}
+          onClose={() => setDeleting(null)}
+        >
+          <div className="p-5 md:p-6">
+            <p className="rounded-xl bg-[#FEF2F2] px-4 py-3 text-sm text-[#991B1B]">
+              This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2 border-t border-[#F3F4F6] p-5 md:p-6">
+            <button
+              type="button"
+              onClick={() => setDeleting(null)}
+              className="min-h-10 rounded-xl border border-[#E5E7EB] px-4 text-xs font-semibold text-[#111827] hover:bg-[#F9FAFB]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (deleting.id) destroy.mutate(deleting.id);
+                setDeleting(null);
+              }}
+              className="min-h-10 rounded-xl bg-[#991B1B] px-4 text-xs font-semibold text-white hover:bg-[#7F1D1D]"
+            >
+              Confirm delete
+            </button>
+          </div>
+        </Modal>
+      ) : null}
     </AdminPage>
-  );
-}
-
-function Mini({
-  label,
-  value,
-  tone = "neutral",
-}: {
-  label: string;
-  value: number;
-  tone?: "neutral" | "green" | "amber";
-}) {
-  return (
-    <article
-      className={`rounded-2xl border p-4 ${tone === "green" ? "border-emerald-300/20 bg-emerald-400/10" : tone === "amber" ? "border-[#FF7A00]/20 bg-[#FF7A00]/10" : "border-white/[0.08] bg-[#161B22]"}`}
-    >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#64748B]">
-        {label}
-      </p>
-      <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">{value}</p>
-    </article>
-  );
-}
-
-function ServiceForm({
-  row,
-  onSave,
-  onDelete,
-  onCancel,
-  saving,
-}: {
-  row: Row;
-  onSave: (row: Row) => void;
-  onDelete?: () => void;
-  onCancel?: () => void;
-  saving?: boolean;
-}) {
-  const [v, setV] = useState<Row>(row);
-  const set = (k: keyof Row, val: unknown) => setV((p) => ({ ...p, [k]: val }));
-
-  return (
-    <article className="space-y-4 rounded-[var(--radius)] border border-border p-6">
-      <div className="grid gap-4 md:grid-cols-3">
-        <Field label="Name">
-          <input
-            className={inputClass}
-            value={v.name}
-            onChange={(e) => set("name", e.target.value)}
-          />
-        </Field>
-        <Field label="Tag">
-          <input
-            className={inputClass}
-            value={v.tag}
-            onChange={(e) => set("tag", e.target.value)}
-          />
-        </Field>
-        <Field label="Sort order">
-          <input
-            type="number"
-            className={inputClass}
-            value={v.sort_order}
-            onChange={(e) => set("sort_order", Number(e.target.value))}
-          />
-        </Field>
-      </div>
-      <Field label="Detail">
-        <textarea
-          rows={3}
-          className={inputClass}
-          value={v.detail}
-          onChange={(e) => set("detail", e.target.value)}
-        />
-      </Field>
-      <Field label="Deliverables (comma separated)">
-        <input
-          className={inputClass}
-          value={(v.deliverables ?? []).join(", ")}
-          onChange={(e) =>
-            set(
-              "deliverables",
-              e.target.value
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean),
-            )
-          }
-        />
-      </Field>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <label className="label-mono flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={v.active}
-            onChange={(e) => set("active", e.target.checked)}
-          />
-          Active
-        </label>
-        <RowActions
-          onSave={() => onSave(v)}
-          {...(onDelete ? { onDelete } : {})}
-          saving={!!saving}
-        />
-        {onCancel ? (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="label-mono rounded-full border border-white/10 px-5 py-2.5 text-muted-foreground"
-          >
-            Cancel
-          </button>
-        ) : null}
-      </div>
-    </article>
   );
 }

@@ -1,8 +1,9 @@
 import type { CSSProperties } from "react";
 import { ArrowUpRight, Coffee, Flag, Gift, Shirt } from "lucide-react";
 import type { PageBlockItem } from "@/lib/page-editor";
-import { catalogCategories, categorySlugFromHref } from "@/lib/catalog-data";
+import { categoryCards, categorySlugFromHref } from "@/lib/catalog-data";
 import { useProducts } from "@/lib/storefront";
+import { optimizeImageUrl, responsiveImageSrcSet } from "@/lib/utils";
 
 const icons = { shirt: Shirt, mug: Coffee, flag: Flag, gift: Gift } as const;
 
@@ -28,7 +29,7 @@ export function CategoryGrid({
     slug: categorySlugFromHref(undefined, product.category),
     href: `/category/${categorySlugFromHref(undefined, product.category)}`,
     buttonLabel: "Browse",
-    img: product.images[0] ?? catalogCategories[0]!.img,
+    img: product.images[0] ?? categoryCards[0]!.img,
   }));
   const categories = items?.length
     ? items
@@ -39,32 +40,32 @@ export function CategoryGrid({
             (category) => category.name.trim().toLowerCase() === item.label.trim().toLowerCase(),
           ) ??
             liveCategories[index] ??
-            catalogCategories[index % catalogCategories.length]!),
+            categoryCards[index % categoryCards.length]!),
           id: item.id,
           name: item.label,
           blurb: item.description,
           slug: categorySlugFromHref(item.href, item.id),
           href: item.href,
           buttonLabel: item.buttonLabel || "Browse",
-          img: item.image ?? catalogCategories[index % catalogCategories.length]!.img,
+          img: item.image ?? categoryCards[index % categoryCards.length]!.img,
         }))
     : liveCategories.length
       ? liveCategories
-      : catalogCategories.map((category) => ({
-        ...category,
-        slug: category.id,
-        href: `/category/${category.id}`,
-        buttonLabel: "Browse",
-      }));
+      : categoryCards.map((category) => ({
+          ...category,
+          slug: category.id,
+          href: `/category/${category.id}`,
+          buttonLabel: "Browse",
+        }));
   return (
     <section className="px-3 md:px-6" data-cms-block="categories" style={design}>
       <div className="mx-auto max-w-[1400px] rounded-xl bg-muted/60 px-5 py-20 sm:px-6 md:px-14 md:py-28">
         <h2 className="display text-[clamp(2rem,5vw,4rem)]" data-cms-field="categories.heading">
-          {content["categories.heading"] ?? "Browse by category"}
+          {content["categories.heading"] ?? "Shop branded merchandise by category"}
           <span className="text-accent">.</span>
         </h2>
 
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 min-h-[52rem] grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((c) => {
             const Icon = icons[c.icon];
             return (
@@ -85,9 +86,13 @@ export function CategoryGrid({
                   </span>
                 </div>
                 <img
-                  src={c.img}
+                  src={optimizeImageUrl(c.img, 480, 60)}
+                  srcSet={responsiveImageSrcSet(c.img, [320, 420, 480], 60)}
+                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                   alt={c.name}
                   loading="lazy"
+                  fetchPriority="low"
+                  decoding="async"
                   width={640}
                   height={360}
                   className="aspect-[16/9] h-auto w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"

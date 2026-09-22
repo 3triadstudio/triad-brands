@@ -1,6 +1,13 @@
 import { z } from "zod";
 
+import { SITE_URL, pageCopy } from "@/lib/seo";
+
 export const pageIdSchema = z.enum([
+  // Global regions. These render above and below every page and are edited in
+  // the builder like any other document; the site falls back to its built-in
+  // header and footer until one is published.
+  "header",
+  "footer",
   "home",
   "shop",
   "solutions",
@@ -292,9 +299,9 @@ export const landingPageDocument: PageDocument = {
     },
   ],
   seo: {
-    title: "Triad Brands — We brand. You stand out.",
-    description: "Branding, print, digital design, and branded merchandise from Nairobi.",
-    canonical: "/",
+    title: pageCopy.home.title,
+    description: pageCopy.home.description,
+    canonical: `${SITE_URL}/`,
   },
 };
 
@@ -333,14 +340,14 @@ function policyPage(
       })),
     ],
     seo: {
-      title: `${title} — Triad Brands`,
-      description,
-      canonical: pageId === "privacy" ? "/privacy-policy" : `/${pageId}`,
+      title: pageCopy[pageId].title,
+      description: pageCopy[pageId].description,
+      canonical: `${SITE_URL}${pageCopy[pageId].path}`,
     },
   };
 }
 
-const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
+const pageTemplates: Record<Exclude<PageId, "home" | "header" | "footer">, PageDocument> = {
   shop: {
     version: 1,
     pageId: "shop",
@@ -373,9 +380,9 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Shop — Triad Brands",
-      description: "Branded merchandise by Triad Brands.",
-      canonical: "/shop",
+      title: pageCopy.shop.title,
+      description: pageCopy.shop.description,
+      canonical: `${SITE_URL}/shop`,
     },
   },
   solutions: {
@@ -420,9 +427,9 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Solutions — Triad Brands",
-      description: "Branding, design, print and merchandise services.",
-      canonical: "/solutions",
+      title: pageCopy.solutions.title,
+      description: pageCopy.solutions.description,
+      canonical: `${SITE_URL}/solutions`,
     },
   },
   about: {
@@ -490,9 +497,9 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "About — Triad Brands",
-      description: "Meet the independent Triad Brands team.",
-      canonical: "/about",
+      title: pageCopy.about.title,
+      description: pageCopy.about.description,
+      canonical: `${SITE_URL}/about`,
     },
   },
   contact: {
@@ -527,9 +534,9 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Contact — Triad Brands",
-      description: "Start a brief with Triad Brands.",
-      canonical: "/contact",
+      title: pageCopy.contact.title,
+      description: pageCopy.contact.description,
+      canonical: `${SITE_URL}/contact`,
     },
   },
   category: {
@@ -560,9 +567,10 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Category — Triad Brands",
-      description: "Browse Triad Brands products.",
-      canonical: "/category",
+      title: "Branded Merchandise by Category | Triad Brands",
+      description:
+        "Browse branded apparel, drinkware, event gear and promotional merchandise by category, produced in Nairobi and delivered across Kenya.",
+      canonical: "",
     },
   },
   product: {
@@ -593,9 +601,10 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Product — Triad Brands",
-      description: "Product details from Triad Brands.",
-      canonical: "/product",
+      title: "Branded Product Details | Triad Brands",
+      description:
+        "Specifications, branding options and bulk pricing for branded merchandise produced by Triad Brands in Nairobi.",
+      canonical: "",
     },
   },
   work: {
@@ -626,9 +635,9 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
     ],
     seo: {
-      title: "Work — Triad Brands",
-      description: "Selected Triad Brands projects.",
-      canonical: "/work",
+      title: pageCopy.work.title,
+      description: pageCopy.work.description,
+      canonical: `${SITE_URL}/work`,
     },
   },
   privacy: policyPage(
@@ -651,7 +660,7 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
       {
         heading: "Your choices",
-        body: "You may ask us to access, correct or delete personal information we hold about you, subject to applicable law. Contact us at hello@triad.studio and include enough detail for us to identify your request.",
+        body: "You may ask us to access, correct or delete personal information we hold about you, subject to applicable law. Contact us at hello@triadbrands.co.ke and include enough detail for us to identify your request.",
       },
     ],
   ),
@@ -675,7 +684,7 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
       },
       {
         heading: "Changes",
-        body: "We may update these terms or this website from time to time. The latest version will be published here. Questions about these terms can be sent to hello@triad.studio.",
+        body: "We may update these terms or this website from time to time. The latest version will be published here. Questions about these terms can be sent to hello@triadbrands.co.ke.",
       },
     ],
   ),
@@ -721,12 +730,17 @@ const pageTemplates: Record<Exclude<PageId, "home">, PageDocument> = {
   ),
 };
 
-export const pageDocuments: Record<PageId, PageDocument> = {
+/**
+ * Legacy v1 defaults. The global regions are deliberately absent: they exist
+ * only as builder documents (see `src/lib/builder/regions.ts`).
+ */
+export const pageDocuments: Record<Exclude<PageId, "header" | "footer">, PageDocument> = {
   home: landingPageDocument,
   ...pageTemplates,
 };
 
 export function getDefaultPageDocument(pageId: PageId): PageDocument {
+  if (pageId === "header" || pageId === "footer") return pageDocuments.home;
   return pageDocuments[pageId];
 }
 

@@ -1,42 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { usePublishedPage, useSections } from "@/lib/storefront";
+import { legacyBlocks, usePublishedPage, useSections } from "@/lib/storefront";
 import { HeroCarousel } from "@/components/landing/HeroCarousel";
 import { FeaturedSolutions } from "@/components/landing/FeaturedSolutions";
 import { CategoryGrid } from "@/components/landing/CategoryGrid";
 import { PromoBanner } from "@/components/landing/PromoBanner";
 import { ValuePropsRow } from "@/components/landing/ValuePropsRow";
 import { PublishedPage } from "@/components/PublishedPage";
+import { pageCopy, pageSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
   component: Index,
-  head: () => ({
-    meta: [
-      { title: "Triad Brands | Branding, Digital, Print & Merchandise in Nairobi" },
-      {
-        name: "description",
-        content:
-          "Custom branding, digital design, print production and branded merchandise for businesses in Nairobi, Kenya.",
-      },
-      { property: "og:title", content: "Triad Brands | Branding, Digital, Print & Merchandise in Nairobi" },
-      {
-        property: "og:description",
-        content:
-          "Bring your next campaign, product launch, or internal refresh to a team that handles strategy, design and production in one place.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://www.triadbrands.co.ke/" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://www.triadbrands.co.ke/" }],
-  }),
+  head: () => pageSeo(pageCopy.home),
 });
 
 function Index() {
   const { data: sections } = useSections();
   const { data: document } = usePublishedPage("home");
   const fallbackOrder = ["hero", "featured", "categories", "promo", "value_props"];
-  const documentBlocks = document?.blocks ?? [];
-  const order = documentBlocks.map((block) => block.id) ?? fallbackOrder;
+  const documentBlocks = legacyBlocks(document);
+  // `[].map()` is still an array, so `??` never reached the fallback: with no
+  // published home document the homepage rendered an empty <main> — no hero,
+  // no H1 and no indexable copy.
+  const order = documentBlocks.length ? documentBlocks.map((block) => block.id) : fallbackOrder;
   const contentFor = (key: string) =>
     documentBlocks.find((block) => block.id === key)?.content ?? {};
   const designFor = (key: string) => documentBlocks.find((block) => block.id === key)?.design ?? {};
@@ -58,12 +43,11 @@ function Index() {
       case "categories": {
         const categoryItems = documentBlocks.find((block) => block.id === key)?.items;
         const props = {
-          key,
           content: contentFor(key),
           design: designFor(key),
           ...(categoryItems ? { items: categoryItems } : {}),
         };
-        return <CategoryGrid {...props} />;
+        return <CategoryGrid key={key} {...props} />;
       }
       case "promo":
         return <PromoBanner key={key} content={contentFor(key)} design={designFor(key)} />;
@@ -71,12 +55,11 @@ function Index() {
         const valuePropsBlock = documentBlocks.find((block) => block.id === key);
         const valuePropsItems = valuePropsBlock?.items;
         const props = {
-          key,
           content: contentFor(key),
           design: designFor(key),
           ...(valuePropsItems ? { items: valuePropsItems } : {}),
         };
-        return <ValuePropsRow {...props} />;
+        return <ValuePropsRow key={key} {...props} />;
       }
       default:
         return null;

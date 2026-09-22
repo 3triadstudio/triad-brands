@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowUpRight, Clock3, Mail, MapPin } from "lucide-react";
-import { socials } from "@/lib/site-data";
+import { faqs, socials } from "@/lib/site-data";
+import { faqLd, localBusinessLd, pageCopy, pageSeo } from "@/lib/seo";
 import { StartProjectDialog } from "@/components/StartProjectDialog";
-import { useSiteSettings, usePublishedPage } from "@/lib/storefront";
+import { defaultContacts, useSiteSettings, usePublishedPage } from "@/lib/storefront";
 import { PublishedPage } from "@/components/PublishedPage";
 import {
   Accordion,
@@ -13,44 +14,22 @@ import {
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
-  head: () => ({
-    meta: [
-      { title: "Contact Triad Brands | Nairobi Brand Studio" },
-      {
-        name: "description",
-        content:
-          "Start a brief with Triad Brands in Nairobi for branding, digital design, print and merchandise work.",
-      },
-      { property: "og:title", content: "Contact Triad Brands | Nairobi Brand Studio" },
-      {
-        property: "og:description",
-        content: "Tell us what you are building and we will help shape the right next step.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://www.triadbrands.co.ke/contact" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://www.triadbrands.co.ke/contact" }],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          name: "Triad Brands",
-          email: "hello@triad.studio",
-          address: { "@type": "PostalAddress", addressLocality: "Nairobi", addressCountry: "KE" },
-          sameAs: socials.map((s) => s.href),
-        }),
-      },
-    ],
-  }),
+  head: () => {
+    const seo = pageSeo(pageCopy.contact);
+    return {
+      ...seo,
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(localBusinessLd()) },
+        { type: "application/ld+json", children: JSON.stringify(faqLd(faqs)) },
+      ],
+    };
+  },
 });
 
 function ContactPage() {
   const { data: pageDocument } = usePublishedPage("contact");
   const { data: settings } = useSiteSettings();
-  const email = settings?.contacts.email ?? "hello@triad.studio";
+  const email = settings?.contacts.email ?? defaultContacts.email;
   const studio = settings?.seo.studio ?? "Nairobi, Kenya";
   const socialLinks = settings
     ? Object.entries(settings.socials)
@@ -64,15 +43,16 @@ function ContactPage() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,color-mix(in_oklab,var(--accent)_18%,transparent),transparent_42%),linear-gradient(180deg,transparent_0%,color-mix(in_oklab,var(--accent)_8%,transparent)_100%)]" />
       <div className="relative mx-auto max-w-[1120px] px-5 pb-24 pt-20 md:px-10 md:pb-32 md:pt-28">
         <header className="mx-auto max-w-3xl text-center">
-          <p className="label-mono text-accent">Contact / Start here</p>
+          <p className="label-mono text-accent">Contact the studio</p>
           <h1 className="display mt-7 text-[clamp(3.5rem,9vw,7.5rem)] leading-[0.9]">
             Let&apos;s make
             <br />
             something <span className="text-accent">work.</span>
           </h1>
           <p className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-primary-foreground/65 md:text-lg">
-            Tell us what you are building, changing or trying to solve. We&apos;ll come back with a
-            useful next step, not a generic pitch.
+            Tell us what you are building, changing or trying to solve — a brand identity, a print
+            run, event branding or branded merchandise. We come back with a useful next step, not a
+            generic pitch.
           </p>
         </header>
 
@@ -84,12 +64,12 @@ function ContactPage() {
                 Good work starts with the right question.
               </h2>
               <p className="mt-5 text-sm leading-relaxed text-primary-foreground/60">
-                A rough idea is enough. Share the context and we&apos;ll help shape the brief around
-                the work that matters.
+                A rough idea is enough. Share the context — audience, deadline, quantities — and we
+                will help shape the brief around the work that matters.
               </p>
             </div>
             <div className="mt-12 border-t border-primary-foreground/15 pt-6">
-              <p className="label-mono text-primary-foreground/45">Brands note</p>
+              <p className="label-mono text-primary-foreground/45">Studio note</p>
               <p className="mt-3 text-sm leading-relaxed text-primary-foreground/70">
                 &quot;The best projects are clear about the problem, curious about the answer, and
                 open to making something useful.&quot;
@@ -102,8 +82,8 @@ function ContactPage() {
             <p className="label-mono text-primary-foreground/45">Quick response</p>
             <h2 className="display mt-4 text-3xl md:text-4xl">Start a conversation.</h2>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-primary-foreground/60">
-              The short brief takes about two minutes. It goes straight to WhatsApp so we can get
-              back to you quickly.
+              The short brief takes about two minutes and goes straight to our WhatsApp, so we can
+              come back to you with pricing and timing.
             </p>
             <StartProjectDialog className="group mt-8 inline-flex items-center gap-2 bg-accent px-6 py-3.5 text-sm font-medium text-accent-foreground transition-transform hover:-translate-y-0.5">
               Start the brief
@@ -119,7 +99,7 @@ function ContactPage() {
               </a>
               <div className="flex gap-3 text-primary-foreground/70">
                 <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                <span>Reply within 2 hours</span>
+                <span>Reply within 1 working day</span>
               </div>
             </div>
           </div>
@@ -135,24 +115,7 @@ function ContactPage() {
             collapsible
             className="mt-10 border-t border-primary-foreground/15"
           >
-            {[
-              [
-                "Do I need a finished brief?",
-                "No. A rough outline of the problem, timing and what you need to make or change is enough for a useful first conversation.",
-              ],
-              [
-                "What kind of projects do you take on?",
-                "We work across identity, digital design, print, large format, merchandise and event collateral, often combining several of these in one project.",
-              ],
-              [
-                "How soon can we start?",
-                "We normally reply within 2 hours. Timing depends on the shape of the project, but we will be direct about availability from the start.",
-              ],
-              [
-                "Can you handle production too?",
-                "Yes. Production is part of our practice, so we can carry the work from the first idea through print, fabrication or delivery.",
-              ],
-            ].map(([question, answer], index) => (
+            {faqs.map(({ q: question, a: answer }, index) => (
               <AccordionItem
                 key={question}
                 value={`question-${index}`}

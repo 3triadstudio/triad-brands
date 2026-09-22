@@ -2,7 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { work } from "@/lib/site-data";
 import { supabase } from "@/integrations/supabase/client";
-import { useProjects, usePublishedPage } from "@/lib/storefront";
+import { legacyBlocks, useProjects, usePublishedPage } from "@/lib/storefront";
+import { breadcrumbLd, pageSeo } from "@/lib/seo";
 import { StartProjectDialog } from "@/components/StartProjectDialog";
 
 export const Route = createFileRoute("/work/$slug")({
@@ -38,23 +39,31 @@ export const Route = createFileRoute("/work/$slug")({
     if (!loaderData) {
       return {
         meta: [
-          { title: "Project unavailable — Triad Brands" },
+          { title: "Project unavailable | Triad Brands" },
           { name: "robots", content: "noindex" },
         ],
       };
     }
     const { project } = loaderData;
+    const seo = pageSeo({
+      path: `/work/${params.slug}`,
+      title: `${project.title} | Triad Brands`,
+      description: project.summary,
+      type: "article",
+    });
     return {
-      meta: [
-        { title: `${project.title} — Triad Brands` },
-        { name: "description", content: project.summary },
-        { property: "og:title", content: `${project.title} — Triad Brands` },
-        { property: "og:description", content: project.summary },
-        { property: "og:type", content: "article" },
-        { property: "og:url", content: `/work/${params.slug}` },
-        { name: "twitter:card", content: "summary_large_image" },
+      ...seo,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(
+            breadcrumbLd([
+              { name: "Home", path: "/" },
+              { name: project.title, path: `/work/${params.slug}` },
+            ]),
+          ),
+        },
       ],
-      links: [{ rel: "canonical", href: `/work/${params.slug}` }],
     };
   },
   component: WorkDetail,
@@ -64,7 +73,7 @@ function WorkDetail() {
   const { project } = Route.useLoaderData();
   const { data: managedProjects } = useProjects();
   const { data: pageDocument } = usePublishedPage("work");
-  const projectsBlock = pageDocument?.blocks.find((block) => block.id === "work_projects");
+  const projectsBlock = legacyBlocks(pageDocument).find((block) => block.id === "work_projects");
   const others = (
     managedProjects?.length
       ? managedProjects.map((item, index) => ({
@@ -82,7 +91,7 @@ function WorkDetail() {
           className="label-mono inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to selected work
+          Back to the catalog
         </Link>
         <div className="mt-10 flex flex-wrap items-center gap-3">
           <p className="label-mono text-accent">{project.label}</p>
@@ -109,7 +118,7 @@ function WorkDetail() {
         <div className="grid gap-12 md:grid-cols-12">
           <aside className="space-y-8 md:col-span-4">
             <div className="border-t border-border pt-5">
-              <p className="label-mono text-muted-foreground">The brief</p>
+              <p className="label-mono text-muted-foreground">Client</p>
               <p className="mt-3">{project.client}</p>
             </div>
             <div className="border-t border-border pt-5">
@@ -117,7 +126,7 @@ function WorkDetail() {
               <p className="mt-3">{project.year}</p>
             </div>
             <div className="border-t border-border pt-5">
-              <p className="label-mono text-muted-foreground">What we handled</p>
+              <p className="label-mono text-muted-foreground">Services</p>
               <ul className="mt-3 space-y-1">
                 {project.services.map((s) => (
                   <li key={s}>{s}</li>
@@ -146,7 +155,7 @@ function WorkDetail() {
           className="mx-auto max-w-[1400px] px-6 pb-24 md:px-12 md:pb-32"
           data-cms-block="work_projects"
         >
-          <p className="label-mono text-muted-foreground">Keep looking</p>
+          <p className="label-mono text-muted-foreground">More selected work</p>
           <div className="mt-8 grid gap-6 md:grid-cols-2">
             {others.map((w) => (
               <Link key={w.slug} to="/work/$slug" params={{ slug: w.slug }} className="group">

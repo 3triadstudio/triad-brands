@@ -13,6 +13,7 @@ import { addToCart, useCart } from "@/lib/cart";
 import { formatKES } from "@/lib/catalog-data";
 import { useProducts, useSiteSettings, usePublishedPage } from "@/lib/storefront";
 import { PublishedPage } from "@/components/PublishedPage";
+import { pageCopy, pageSeo } from "@/lib/seo";
 import {
   Dialog,
   DialogContent,
@@ -23,22 +24,7 @@ import {
 
 export const Route = createFileRoute("/shop/")({
   component: ShopIndex,
-  head: () => ({
-    meta: [
-      { title: "Shop Branded Merchandise | Triad Brands Nairobi" },
-      {
-        name: "description",
-        content:
-          "Browse branded apparel, drinkware, event gear and promotional merchandise from Triad Brands in Nairobi.",
-      },
-      { property: "og:title", content: "Shop Branded Merchandise | Triad Brands Nairobi" },
-      {
-        property: "og:description",
-        content: "Custom merchandise and promotional items designed for events, teams and customer touchpoints.",
-      },
-    ],
-    links: [{ rel: "canonical", href: "https://www.triadbrands.co.ke/shop" }],
-  }),
+  head: () => pageSeo(pageCopy.shop),
 });
 
 function ShopIndex() {
@@ -69,17 +55,18 @@ function ShopIndex() {
   return (
     <>
       <section className="mx-auto max-w-[1400px] px-6 pb-14 pt-16 md:px-12 md:pb-20 md:pt-24">
-        <p className="label-mono text-accent">Shop the catalog</p>
+        <p className="label-mono text-accent">Browse the catalog</p>
         <div className="mt-6 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
           <div>
             <h1 className="display max-w-4xl text-[clamp(2.8rem,7vw,6rem)]">
-              Branded goods,
+              Branded merchandise,
               <br />
-              made to move<span className="text-amber">.</span>
+              made to order<span className="text-amber">.</span>
             </h1>
             <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Browse live availability, choose what fits your brief, and add items to your cart.
-              Every product shown here is managed from the Triad Brands catalog.
+              Live pricing on branded apparel, drinkware, event gear and corporate gifts. Add what
+              fits your brief to the cart, or send us a spec and we will quote the custom version —
+              branding, sizing and delivery included.
             </p>
           </div>
           <div className="label-mono flex shrink-0 items-center gap-2 text-muted-foreground">
@@ -480,7 +467,7 @@ function ProductOrderDialog({
             <textarea
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
-              placeholder="Custom imprint, branding requirements, delivery details..."
+              placeholder="Branding method, artwork, delivery date, anything else we should know"
               rows={3}
               className="mt-3 w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/50"
             />

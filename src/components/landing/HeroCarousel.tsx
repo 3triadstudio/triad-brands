@@ -4,6 +4,7 @@ import { ArrowUpRight, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { heroSlides, trustBadges } from "@/lib/catalog-data";
 import { StartProjectDialog } from "@/components/StartProjectDialog";
 import { cn } from "@/lib/utils";
+import { optimizeImageUrl, responsiveImageSrcSet } from "@/lib/utils";
 import { useHeroSlides } from "@/lib/storefront";
 
 export function HeroCarousel({
@@ -77,21 +78,23 @@ export function HeroCarousel({
         onFocus={() => setIsPaused(true)}
         onBlur={() => setIsPaused(false)}
       >
-        {documentSlides.map((s, idx) => (
-          <img
-            key={s.id}
-            src={idx === i ? (content["hero.image"] ?? s.img) : s.img}
-            alt={s.eyebrow}
-            width={1920}
-            height={1080}
-            {...(idx === 0 ? {} : { loading: "lazy" as const })}
-            className={cn(
-              "absolute inset-0 h-full w-full object-cover transition-opacity duration-1000",
-              idx === i ? "opacity-100" : "opacity-0",
-            )}
-            data-cms-field={idx === i ? "hero.image" : undefined}
-          />
-        ))}
+        {documentSlides.map((s, idx) =>
+          idx === i ? (
+            <img
+              key={s.id}
+              src={optimizeImageUrl(content["hero.image"] ?? s.img, 1280, 65)}
+              srcSet={responsiveImageSrcSet(content["hero.image"] ?? s.img, [640, 960, 1280], 65)}
+              sizes="100vw"
+              alt={s.eyebrow}
+              width={1920}
+              height={1080}
+              fetchPriority="high"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-1000"
+              data-cms-field="hero.image"
+            />
+          ) : null,
+        )}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(14,19,49,0.86)_0%,rgba(14,19,49,0.62)_52%,rgba(14,19,49,0.3)_100%)]" />
 
         <div className="relative flex min-h-[35rem] flex-col items-center justify-center px-6 py-24 text-center text-primary-foreground md:min-h-[42rem] md:items-start md:px-16 md:text-left">
@@ -116,7 +119,7 @@ export function HeroCarousel({
               data-cms-field="hero.cta_button"
             >
               <span data-cms-field="hero.cta_label">
-                {content["hero.cta_label"] ?? "Request Custom Quote"}
+                {content["hero.cta_label"] ?? "Request a custom quote"}
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
             </StartProjectDialog>
@@ -124,7 +127,7 @@ export function HeroCarousel({
               to="/shop"
               className="inline-flex min-h-12 items-center gap-2 rounded-lg border border-primary-foreground/30 bg-primary-foreground/10 px-6 py-3.5 text-sm font-medium backdrop-blur-md transition-colors hover:bg-primary-foreground/20"
             >
-              Explore Catalog
+              Browse the catalog
             </Link>
           </div>
 
@@ -168,11 +171,15 @@ export function HeroCarousel({
               type="button"
               aria-label={`Go to slide ${idx + 1}`}
               onClick={() => setI(idx)}
-              className={cn(
-                "h-2 min-w-3 rounded-full transition-[width,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-primary",
-                idx === i ? "w-8 bg-accent" : "w-3 bg-primary-foreground/40",
-              )}
-            />
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+            >
+              <span
+                className={cn(
+                  "block h-2 rounded-full transition-[width,background-color]",
+                  idx === i ? "w-8 bg-accent" : "w-3 bg-primary-foreground/40",
+                )}
+              />
+            </button>
           ))}
         </div>
       </div>

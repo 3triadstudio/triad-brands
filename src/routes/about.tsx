@@ -1,32 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
-import { pillars, stats, process } from "@/lib/site-data";
+import { pillars, stats, principles } from "@/lib/site-data";
 import { StartProjectDialog } from "@/components/StartProjectDialog";
 import { usePublishedPage } from "@/lib/storefront";
 import { PublishedPage } from "@/components/PublishedPage";
+import { pageCopy, pageSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
   component: StudioPage,
-  head: () => ({
-    meta: [
-      { title: "About Triad Brands | Nairobi Brand Studio" },
-      {
-        name: "description",
-        content:
-          "Learn how Triad Brands works with growing businesses in Nairobi on branding, digital strategy, design and production.",
-      },
-      { property: "og:title", content: "About Triad Brands | Nairobi Brand Studio" },
-      {
-        property: "og:description",
-        content:
-          "An independent brand studio helping businesses turn ideas into clear, useful, market-ready experiences.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://www.triadbrands.co.ke/about" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://www.triadbrands.co.ke/about" }],
-  }),
+  head: () => pageSeo(pageCopy.about),
 });
 
 function StudioPage() {
@@ -35,26 +17,28 @@ function StudioPage() {
   return (
     <>
       <section className="mx-auto max-w-[1400px] px-6 pb-20 pt-16 md:px-12 md:pb-28 md:pt-24">
-        <p className="label-mono text-accent">Brands</p>
+        <p className="label-mono text-accent">About Triad Brands</p>
         <h1 className="display mt-6 max-w-5xl text-[clamp(2.4rem,7vw,6rem)]">
           Small enough to care.
           <br />
           Serious enough to deliver<span className="text-accent">.</span>
         </h1>
         <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Triad is an independent Nairobi brand studio for brands that need more than a logo and less than
-          a revolving door of suppliers.
+          Triad Brands is an independent branding studio in Nairobi, for companies that need more
+          than a logo and less than a revolving door of suppliers.
         </p>
         <div className="mt-12 grid gap-10 border-t border-border pt-12 md:grid-cols-12">
           <p className="label-mono text-muted-foreground md:col-span-4">The short version</p>
           <div className="space-y-6 text-lg leading-relaxed md:col-span-8">
             <p>
-              We connect the thinking, the making and the delivery. That means the identity on
-              screen still feels like the one on the banner, the garment, or the box.
+              We connect the thinking, the making and the delivery. The brand identity on screen
+              still feels like the one on the banner, the garment and the box, because the same
+              studio designs and produces all three.
             </p>
             <p className="text-muted-foreground">
-              We stay close to the work, keep the team lean, and choose projects where clarity and
-              craft can make a visible difference.
+              Brand identity, digital design, print production and branded merchandise, run from one
+              workshop in Nairobi for clients across Kenya. We keep the team lean and choose
+              projects where clarity and craft make a visible difference.
             </p>
           </div>
         </div>
@@ -74,9 +58,9 @@ function StudioPage() {
 
       <section className="px-3 md:px-6">
         <div className="mx-auto max-w-[1400px] rounded-[var(--radius)] bg-primary px-6 py-20 text-primary-foreground md:px-14 md:py-28">
-          <p className="label-mono opacity-60">A better way to move from idea to in-market</p>
+          <p className="label-mono opacity-60">How Triad Brands is run</p>
           <div className="mt-14 grid gap-12 md:grid-cols-3">
-            {process.map((s) => (
+            {principles.map((s) => (
               <div key={s.n} className="border-t border-primary-foreground/15 pt-6">
                 <span className="label-mono text-amber">{s.n}</span>
                 <h2 className="display mt-6 text-2xl md:text-3xl">{s.title}</h2>
@@ -110,7 +94,7 @@ function StudioPage() {
             to="/shop"
             className="inline-flex items-center gap-2 rounded-full border border-border px-7 py-4 text-sm font-medium transition-colors hover:bg-muted"
           >
-            See the work
+            Browse the catalog
           </Link>
         </div>
       </section>

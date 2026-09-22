@@ -11,4 +11,18 @@ export default defineConfig({
     tanstackStart({ server: { entry: "server" } }),
     react(),
   ],
+  build: {
+    // The shared entry chunk (React, TanStack Router's own route manifest,
+    // TanStack Query, Radix UI, Sonner) sits around 600 kB — genuine
+    // first-party UI dependencies used across the whole app, not slack. The
+    // real waste here was `import * as Lucide from "lucide-react"` pulling in
+    // the entire ~1000-icon package for a handful of named lookups, and the
+    // builder's page/region renderer being statically imported into every
+    // public route instead of code-split; both are fixed (see
+    // src/lib/builder/icons.ts and src/components/builder/LazyBuilderCanvas.tsx).
+    // This raises the warning threshold to match the bundle's real,
+    // now-justified floor instead of masking future regressions with a huge
+    // limit.
+    chunkSizeWarningLimit: 650,
+  },
 });
