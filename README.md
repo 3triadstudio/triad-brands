@@ -1,7 +1,7 @@
-# Triad Studio
+# Triad Brands
 
-Triad Studio is a React storefront and content management system for a Nairobi
-creative studio. The public site presents branding, print, digital design, and
+Triad Brands is a React storefront and content management system for a Nairobi
+creative brand studio. The public site presents branding, print, digital design, and
 branded merchandise services. The authenticated admin area manages storefront
 content, catalog data, page layouts, theme settings, projects, services, social
 links, and inbound leads.

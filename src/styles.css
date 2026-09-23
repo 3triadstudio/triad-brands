@@ -161,6 +161,29 @@
     --accent: var(--cms-accent);
     --amber: var(--cms-accent-2);
     --border: color-mix(in srgb, var(--cms-border) 78%, transparent);
+
+    /* Dashboard-managed type, shape and rhythm. Each falls back to the design
+       system default, so an unset token changes nothing. */
+    --font-display: var(--cms-font-display, "TASA Explorer"), system-ui, sans-serif;
+    --font-sans: var(--cms-font-body, "Cairo"), system-ui, sans-serif;
+    --font-mono: var(--cms-font-mono, "IBM Plex Mono"), ui-monospace, monospace;
+    --radius: var(--cms-radius, 1.25rem);
+
+    font-size: var(--cms-base-font-size, 16px);
+    line-height: var(--cms-body-line-height, 1.6);
+  }
+
+  /* Section rhythm and page width, both editable from the dashboard. */
+  .cms-theme-live [data-builder-type="section"] {
+    padding-block: var(--cms-section-spacing, 80px);
+  }
+
+  .cms-theme-live [data-builder-type="section"] > div {
+    max-width: var(--cms-container-width, 1400px);
+  }
+
+  .cms-theme-live .display {
+    font-size: calc(1em * var(--cms-heading-scale, 1));
   }
 }
 

@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { StartProjectDialog } from "@/components/StartProjectDialog";
 import { formatKES } from "@/lib/catalog-data";
+import { SITE_URL } from "@/lib/seo";
+import { LazyBuilderCanvas } from "@/components/builder/LazyBuilderCanvas";
+import { isBuilderDocument, type BuilderDocument } from "@/lib/builder/types";
 import { useProducts, useProjects, useServices } from "@/lib/storefront";
+import { optimizeImageUrl } from "@/lib/utils";
 import type { PageBlock, PageDocument } from "@/lib/page-editor";
 import { CategoryGrid } from "@/components/landing/CategoryGrid";
 import { FeaturedSolutions } from "@/components/landing/FeaturedSolutions";
@@ -63,7 +67,7 @@ function NestedLayout({ block }: { block: PageBlock }) {
 
 function PublishedBlock({ block }: { block: PageBlock }) {
   if (block.kind === "container" || block.kind === "columns") return <NestedLayout block={block} />;
-  if (block.kind === "rich_text") return <RichText block={block} />;
+  if (block.kind === "rich_text") return <RichText block={block} isLead={false} />;
   if (block.kind === "featured") return <Products block={block} />;
   if (block.kind === "services") return <Services block={block} />;
   if (block.kind === "projects") return <Projects block={block} />;
@@ -71,11 +75,14 @@ function PublishedBlock({ block }: { block: PageBlock }) {
   return null;
 }
 
-function RichText({ block }: { block: PageBlock }) {
+function RichText({ block, isLead = true }: { block: PageBlock; isLead?: boolean }) {
   const content = block.content as Record<string, string | undefined>;
   const eyebrow = content["eyebrow"] ?? "";
   const heading = content["heading"] ?? "";
   const body = content["body"] ?? "";
+  // Only the page's first rich-text block is the <h1>. Every later section is a
+  // subheading, so a policy page no longer ships nine competing <h1>s.
+  const Heading = isLead ? "h1" : "h2";
   return (
     <section
       className="mx-auto max-w-[1400px] px-6 pb-16 pt-16 md:px-12 md:pb-20 md:pt-24"
@@ -87,9 +94,16 @@ function RichText({ block }: { block: PageBlock }) {
           {eyebrow}
         </p>
       ) : null}
-      <h1 className="display mt-6 max-w-5xl text-[clamp(2.4rem,7vw,6rem)]" data-cms-field="heading">
+      <Heading
+        className={
+          isLead
+            ? "display mt-6 max-w-5xl text-[clamp(2.4rem,7vw,6rem)]"
+            : "display mt-6 max-w-5xl text-[clamp(1.6rem,4vw,2.75rem)]"
+        }
+        data-cms-field="heading"
+      >
         {heading}
-      </h1>
+      </Heading>
       {body ? (
         <p
           className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground"
@@ -132,8 +146,11 @@ function Products({ block }: { block: PageBlock }) {
             <div className="bg-muted">
               {(product.images?.[0] ?? product.image_url) ? (
                 <img
-                  src={product.images?.[0] ?? product.image_url ?? undefined}
+                  src={optimizeImageUrl(product.images?.[0] ?? product.image_url ?? "", 640)}
                   alt={product.title}
+                  width={640}
+                  height={384}
+                  loading="lazy"
                   className="h-72 w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                 />
               ) : (
@@ -285,7 +302,7 @@ function Projects({ block }: { block: PageBlock }) {
 function Founders({ block }: { block: PageBlock }) {
   const founders = [1, 2, 3].map((index) => ({
     name: block.content[`founder_${index}_name`] ?? `Founder ${index}`,
-    role: block.content[`founder_${index}_role`] ?? "Triad Studio",
+    role: block.content[`founder_${index}_role`] ?? "Triad Brands",
     bio: block.content[`founder_${index}_bio`] ?? "",
   }));
   return (
@@ -338,7 +355,7 @@ function ContactCta({ block }: { block: PageBlock }) {
   );
 }
 
-export function PublishedPage({ document }: { document: PageDocument }) {
+export function PublishedPage({ document }: { document: PageDocument | BuilderDocument }) {
   useEffect(() => {
     const setMeta = (attribute: "name" | "property", key: string, value: string) => {
       if (!value) return;
@@ -365,23 +382,51 @@ export function PublishedPage({ document }: { document: PageDocument }) {
     for (const [attribute, key, value] of metaValues) {
       if (value) setMeta(attribute, key, value);
     }
+    // `noindex` only exists on builder documents; legacy ones stay indexable.
+    if (isBuilderDocument(document)) {
+      const robots = document.seo.noindex ? "noindex, follow" : "index, follow";
+      setMeta("name", "robots", robots);
+    }
+
     if (document.seo.canonical) {
+      // Stored canonicals may be relative ("/about"). Resolve them against the
+      // production origin so the tag is absolute and never points at a preview
+      // or localhost host.
+      const href = new URL(document.seo.canonical, SITE_URL).toString();
       const canonical = window.document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-      if (canonical) canonical.href = document.seo.canonical;
+      if (canonical) canonical.href = href;
       else {
         const link = window.document.createElement("link");
         link.rel = "canonical";
-        link.href = document.seo.canonical;
+        link.href = href;
         window.document.head.appendChild(link);
       }
     }
-  }, [document.seo]);
+  }, [document]);
+
+  if (isBuilderDocument(document)) {
+    return (
+      <LazyBuilderCanvas
+        root={document.root}
+        fallback={
+          <div
+            className="flex min-h-[50vh] items-center justify-center"
+            role="status"
+            aria-label="Loading page content"
+          >
+            <span className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent" />
+          </div>
+        }
+      />
+    );
+  }
 
   return (
     <>
-      {document.blocks
-        .filter((block) => block.visible)
-        .map((block) => {
+      {(() => {
+        const visibleBlocks = document.blocks.filter((block) => block.visible);
+        const leadRichTextId = visibleBlocks.find((block) => block.kind === "rich_text")?.id;
+        return visibleBlocks.map((block) => {
           const rendered = (() => {
             switch (block.kind) {
               case "container":
@@ -426,7 +471,9 @@ export function PublishedPage({ document }: { document: PageDocument }) {
               case "value_props":
                 return <ValuePropsRow key={block.id} design={baseDesign(block.design)} />;
               case "rich_text":
-                return <RichText key={block.id} block={block} />;
+                return (
+                  <RichText key={block.id} block={block} isLead={block.id === leadRichTextId} />
+                );
               case "services":
                 return <Services key={block.id} block={block} />;
               case "projects":
@@ -445,7 +492,8 @@ export function PublishedPage({ document }: { document: PageDocument }) {
               <ResponsiveBlockStyles block={block} />
             </div>
           ) : null;
-        })}
+        });
+      })()}
     </>
   );
 }

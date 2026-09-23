@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test:e2e": "playwright test tests/inner-pages.spec.ts --reporter=line"
+    "test:e2e": "playwright test tests/inner-pages.spec.ts --reporter=line",
+    "test:builder": "esbuild tests/builder.node.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/builder-test.mjs --alias:@=./src --loader:.jpg=dataurl --loader:.png=dataurl --loader:.svg=dataurl --log-level=error && node node_modules/.cache/builder-test.mjs",
+    "test:render": "esbuild tests/render.node.test.tsx --bundle --platform=node --format=cjs --outfile=node_modules/.cache/render-test.cjs --alias:@=./src --alias:@tanstack/react-router=./tests/stubs/router.tsx --alias:@/lib/storefront=./tests/stubs/storefront.tsx --alias:@/components/StartProjectDialog=./tests/stubs/start-project.tsx --loader:.jpg=dataurl --loader:.png=dataurl --loader:.svg=dataurl --jsx=automatic --log-level=error && node node_modules/.cache/render-test.cjs",
+    "test:unit": "npm run test:builder && npm run test:render"
   },
   "overrides": {
     "rolldown": "1.2.1"

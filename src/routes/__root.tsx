@@ -18,6 +18,7 @@ import { WhatsAppFloating } from "@/components/WhatsAppFloating";
 import { CookieBanner } from "@/components/CookieBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { useLiveTheme, useSiteSettings, useStorefrontRealtime } from "@/lib/storefront";
+import { localBusinessLd, organizationLd, websiteLd, OG_IMAGE, POSITIONING } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -84,21 +85,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Triad Studio — We brand. You stand out." },
-      {
-        name: "description",
-        content:
-          "Triad Studio is an independent creative studio in Nairobi: branding, digital design, print production and branded merchandise under one roof.",
-      },
-      { name: "author", content: "Triad Studio" },
-      { property: "og:title", content: "Triad Studio — We brand. You stand out." },
-      {
-        property: "og:description",
-        content:
-          "An independent Nairobi creative studio bringing branding, design, print and merchandise together.",
-      },
+      // Site-wide defaults only. Each route sets its own title, description,
+      // canonical and social copy through `pageSeo`, which overrides these.
+      { title: "Triad Brands | Branding, Print & Merchandise in Nairobi" },
+      { name: "description", content: POSITIONING },
+      { name: "author", content: "Triad Brands" },
+      { name: "robots", content: "index, follow" },
+      { property: "og:site_name", content: "Triad Brands" },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "en_KE" },
+      { property: "og:image", content: OG_IMAGE },
+      { property: "og:image:type", content: "image/png" },
+      { property: "og:image:width", content: "1142" },
+      { property: "og:image:height", content: "520" },
+      { property: "og:image:alt", content: "Triad Brands — Nairobi branding studio" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [
       {
@@ -112,6 +114,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=TASA+Explorer:wght@400;500;600;700;800&display=swap",
       },
+    ],
+    scripts: [
+      { type: "application/ld+json", children: JSON.stringify(organizationLd()) },
+      { type: "application/ld+json", children: JSON.stringify(websiteLd()) },
+      { type: "application/ld+json", children: JSON.stringify(localBusinessLd()) },
     ],
   }),
 
@@ -138,134 +145,9 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const location = useLocation();
+  // The admin studio and its sign-in screen render their own chrome — skip
+  // the public header/footer/cookie-banner shell on those paths.
   const standalone = location.pathname === "/login" || location.pathname.startsWith("/admin");
-
-  useEffect(() => {
-    const preview = new URLSearchParams(window.location.search).get("cmsPreview") === "1";
-    if (!preview || window.parent === window) return;
-
-    const describeElement = (element: HTMLElement) => {
-      const path: string[] = [];
-      let current: HTMLElement | null = element;
-      while (current && current !== document.body && path.length < 5) {
-        const tag = current.tagName.toLowerCase();
-        const siblings = current.parentElement
-          ? Array.from(current.parentElement.children).filter(
-              (child) => child.tagName === current?.tagName,
-            )
-          : [];
-        const index = Math.max(0, siblings.indexOf(current));
-        path.unshift(`${tag}:nth-of-type(${index + 1})`);
-        current = current.parentElement;
-      }
-      return path.join(" > ");
-    };
-
-    const onClick = (event: MouseEvent) => {
-      const target = event.target;
-      if (!(target instanceof HTMLElement)) return;
-      const editable =
-        target.closest<HTMLElement>("h1,h2,h3,h4,p,a,button,img,section,article") ?? target;
-      const field = editable.closest<HTMLElement>("[data-cms-field]");
-      const block = editable.closest<HTMLElement>("[data-cms-block]");
-      event.preventDefault();
-      event.stopPropagation();
-      if (field && !(field instanceof HTMLImageElement)) {
-        field.contentEditable = "true";
-        field.focus();
-      }
-      const fieldKey = field?.dataset["cmsField"] ?? null;
-      const blockKey = block?.dataset["cmsBlock"] ?? null;
-      window.parent.postMessage(
-        {
-          type: "triad:cms-select",
-          selector: fieldKey
-            ? `[data-cms-field="${fieldKey}"]`
-            : blockKey
-              ? `[data-cms-block="${blockKey}"]`
-              : describeElement(editable),
-          blockKey,
-          fieldKey,
-          tag: editable.tagName.toLowerCase(),
-          text:
-            editable instanceof HTMLImageElement
-              ? editable.alt
-              : (editable.textContent?.trim().slice(0, 220) ?? ""),
-          image: editable instanceof HTMLImageElement ? editable.src : null,
-          href: editable instanceof HTMLAnchorElement ? editable.getAttribute("href") : null,
-        },
-        window.location.origin,
-      );
-    };
-
-    const onInput = (event: Event) => {
-      const target = event.target;
-      if (!(target instanceof HTMLElement) || target.contentEditable !== "true") return;
-      const field = target.closest<HTMLElement>("[data-cms-field]");
-      const block = target.closest<HTMLElement>("[data-cms-block]");
-      const fieldKey = field?.dataset["cmsField"] ?? null;
-      const blockKey = block?.dataset["cmsBlock"] ?? null;
-      window.parent.postMessage(
-        {
-          type: "triad:cms-inline-edit",
-          selector: fieldKey ? `[data-cms-field="${fieldKey}"]` : describeElement(target),
-          blockKey,
-          fieldKey,
-          text: target.textContent ?? "",
-        },
-        window.location.origin,
-      );
-    };
-
-    const onMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data?.type === "triad:cms-layout") {
-        const blocks = event.data.blocks as { id: string; visible: boolean }[] | undefined;
-        if (!blocks?.length) return;
-        const nodes = new Map(
-          Array.from(document.querySelectorAll<HTMLElement>("[data-cms-block]")).map(
-            (node) => [node.dataset["cmsBlock"] ?? "", node] as const,
-          ),
-        );
-        const first = nodes.get(blocks[0]?.id ?? "");
-        const parent = first?.parentElement;
-        if (!parent) return;
-        for (const block of blocks) {
-          const node = nodes.get(block.id);
-          if (!node || node.parentElement !== parent) continue;
-          node.hidden = !block.visible;
-          parent.appendChild(node);
-        }
-        return;
-      }
-      if (event.data?.type !== "triad:cms-update") return;
-      const { selector, text, image, href, css } = event.data as {
-        selector?: string;
-        text?: string;
-        image?: string;
-        href?: string;
-        css?: Record<string, string>;
-      };
-      if (!selector) return;
-      const element = document.querySelector<HTMLElement>(selector);
-      if (!element) return;
-      if (typeof text === "string" && !(element instanceof HTMLImageElement))
-        element.textContent = text;
-      if (typeof image === "string" && element instanceof HTMLImageElement) element.src = image;
-      if (typeof href === "string" && element instanceof HTMLAnchorElement) element.href = href;
-      if (css) Object.assign(element.style, css);
-    };
-
-    document.addEventListener("click", onClick, true);
-    document.addEventListener("input", onInput, true);
-    window.addEventListener("message", onMessage);
-    window.parent.postMessage({ type: "triad:cms-ready" }, window.location.origin);
-    return () => {
-      document.removeEventListener("click", onClick, true);
-      document.removeEventListener("input", onInput, true);
-      window.removeEventListener("message", onMessage);
-    };
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -281,8 +163,19 @@ function PublicShell() {
   const { data: settings } = useSiteSettings();
 
   useEffect(() => {
-    const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-    if (link && settings?.branding.favicon_url) link.href = settings.branding.favicon_url;
+    if (!settings?.branding.favicon_url) return;
+    // Browsers cache the tab favicon aggressively and, in several of them
+    // (Chrome included), mutating an existing <link>'s `href` doesn't
+    // reliably trigger a re-fetch — the old icon just stays put after a
+    // brand-asset update. Removing the old link and inserting a fresh one
+    // forces a real fetch of the new URL every time.
+    const previous = document.querySelectorAll<HTMLLinkElement>('link[rel="icon"]');
+    const next = document.createElement("link");
+    next.rel = "icon";
+    next.type = settings.branding.favicon_url.endsWith(".svg") ? "image/svg+xml" : "image/png";
+    next.href = settings.branding.favicon_url;
+    document.head.appendChild(next);
+    previous.forEach((link) => link.remove());
   }, [settings?.branding.favicon_url]);
 
   return (

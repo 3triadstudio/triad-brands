@@ -1,8 +1,9 @@
 import type { CSSProperties } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, ShoppingCart, Star } from "lucide-react";
-import { featuredProducts, formatKES } from "@/lib/catalog-data";
+import { formatKES } from "@/lib/catalog-data";
 import { useProducts } from "@/lib/storefront";
+import { optimizeImageUrl, responsiveImageSrcSet } from "@/lib/utils";
 
 export function FeaturedSolutions({
   content = {},
@@ -12,20 +13,22 @@ export function FeaturedSolutions({
   design?: CSSProperties;
 }) {
   const { data: remoteProducts } = useProducts();
-  const products = remoteProducts?.length
-    ? remoteProducts
-        .filter((product) => product.featured)
-        .map((product) => ({
-          id: product.id,
-          badge: product.badges[0] ?? "Featured",
-          category: product.category,
-          title: product.title,
-          rating: 5,
-          reviews: 0,
-          from: product.price_from,
-          img: product.images?.[0] ?? product.image_url ?? featuredProducts[0]!.img,
-        }))
-    : featuredProducts;
+  const products = (remoteProducts ?? [])
+    .filter((product) => product.featured)
+    .map((product) => ({
+      id: product.id,
+      badge: product.badges[0] ?? "Featured",
+      category: product.category,
+      title: product.title,
+      rating: 5,
+      reviews: 0,
+      from:
+        product.sale_price !== null && product.sale_price < product.price_from
+          ? product.sale_price
+          : product.price_from,
+      img: product.images[0] ?? null,
+    }))
+    .filter((product): product is typeof product & { img: string } => Boolean(product.img));
 
   return (
     <section
@@ -35,19 +38,19 @@ export function FeaturedSolutions({
     >
       <div className="flex flex-wrap items-baseline justify-between gap-6">
         <h2 className="display text-[clamp(2rem,5vw,4rem)]" data-cms-field="featured.heading">
-          {content["featured.heading"] ?? "Featured solutions"}
+          {content["featured.heading"] ?? "Popular branded products"}
           <span className="text-amber">.</span>
         </h2>
         <Link
           to="/shop"
           className="label-mono group inline-flex items-center gap-2 border-b border-border pb-1 transition-colors hover:border-accent"
         >
-          View Full Catalog
+          View the full catalog
           <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </Link>
       </div>
 
-      <div className="mt-12 grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-12 min-h-[42rem] grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3">
         {products.map((p) => (
           <article
             key={p.id}
@@ -58,11 +61,15 @@ export function FeaturedSolutions({
                 {p.badge}
               </span>
               <img
-                src={p.img}
+                src={optimizeImageUrl(p.img, 480, 60)}
+                srcSet={responsiveImageSrcSet(p.img, [320, 420, 480], 60)}
+                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                 alt={p.title}
                 width={1024}
                 height={1024}
                 loading="lazy"
+                fetchPriority="low"
+                decoding="async"
                 className="aspect-[4/3] h-auto w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
               />
             </div>

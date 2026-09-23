@@ -120,7 +120,7 @@ export function cartEstimate(itemsToFormat: CartItem[]) {
 
 export function buildCartQuoteMessage(itemsToFormat: CartItem[]) {
   return [
-    "Hello Triad Studio, I'd like to request a quote for these items.",
+    "Hello Triad Brands, I'd like to request a quote for these items.",
     ...itemsToFormat.map((item, index) =>
       [
         `${index + 1}. ${item.title}`,

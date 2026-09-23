@@ -1,16 +1,33 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
-import { useProducts, usePublishedPage } from "@/lib/storefront";
+import { legacyBlocks, useProducts, usePublishedPage } from "@/lib/storefront";
 import { formatKES, getCategoryConfig } from "@/lib/catalog-data";
+import { breadcrumbLd, pageSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/category/$slug")({
   component: CategoryDetail,
   head: ({ params }) => {
-    const title = getCategoryConfig(params.slug).name;
+    const category = getCategoryConfig(params.slug);
+    const seo = pageSeo({
+      path: `/category/${params.slug}`,
+      title: `${category.name} in Nairobi | Triad Brands`,
+      // Real per-category copy rather than a templated sentence, so the four
+      // category pages do not read as near-duplicates of each other.
+      description: category.description,
+    });
     return {
-      meta: [
-        { title: `${title} — Triad Studio` },
-        { name: "description", content: `Browse our ${title.toLowerCase()} solutions.` },
+      ...seo,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(
+            breadcrumbLd([
+              { name: "Home", path: "/" },
+              { name: "Shop", path: "/shop" },
+              { name: category.name, path: `/category/${params.slug}` },
+            ]),
+          ),
+        },
       ],
     };
   },
@@ -20,13 +37,21 @@ function CategoryDetail() {
   const { slug } = Route.useParams();
   const { data: products } = useProducts();
   const { data: pageDocument } = usePublishedPage("category");
-  const intro = pageDocument?.blocks.find((block) => block.id === "category_intro");
-  const productsBlock = pageDocument?.blocks.find((block) => block.id === "category_products");
+  const intro = legacyBlocks(pageDocument).find((block) => block.id === "category_intro");
+  const productsBlock = legacyBlocks(pageDocument).find(
+    (block) => block.id === "category_products",
+  );
 
   const category = getCategoryConfig(slug);
-  const acceptedCategories = category.aliases;
+  const acceptedCategories = new Set(category.aliases.map((alias) => alias.trim().toLowerCase()));
   const filtered =
-    products?.filter((p) => acceptedCategories.includes(p.category.trim().toLowerCase())) || [];
+    products?.filter((p) => {
+      const productCategory = p.category.trim().toLowerCase();
+      return (
+        acceptedCategories.has(productCategory) ||
+        productCategory.replace(/[^a-z0-9]+/g, "-") === slug.trim().toLowerCase()
+      );
+    }) || [];
   const categoryName = category.name;
   const description = category.description;
 
@@ -39,7 +64,7 @@ function CategoryDetail() {
           className="label-mono inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Services
+          Back to services
         </Link>
       </div>
 
@@ -48,7 +73,7 @@ function CategoryDetail() {
         className="mx-auto max-w-[1400px] px-6 py-16 md:px-12 md:py-24"
         data-cms-block="category_intro"
       >
-        <p className="label-mono text-accent">{intro?.content["eyebrow"] ?? "Category"}</p>
+        <p className="label-mono text-accent">{intro?.content["eyebrow"] ?? "Product category"}</p>
         <h1 className="display mt-4 text-4xl md:text-5xl" data-cms-field="heading">
           {intro?.content["heading"] || categoryName}
         </h1>
@@ -114,13 +139,15 @@ function CategoryDetail() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20">
-            <p className="text-muted-foreground">No products found in this category.</p>
+            <p className="text-muted-foreground">
+              Nothing is listed in this category yet — tell us what you need and we will quote it.
+            </p>
             <Link
               to="/shop"
               className="label-mono mt-4 inline-flex items-center gap-2 text-accent hover:underline"
             >
               <ArrowUpRight className="h-4 w-4" />
-              Explore all products
+              Browse the full catalog
             </Link>
           </div>
         )}

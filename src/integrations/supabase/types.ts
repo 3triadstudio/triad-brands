@@ -172,6 +172,60 @@ export type Database = {
         };
         Relationships: [];
       };
+      page_content_revisions: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          document: Json;
+          id: string;
+          page_id: string;
+          revision: number;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          document: Json;
+          id?: string;
+          page_id: string;
+          revision: number;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          document?: Json;
+          id?: string;
+          page_id?: string;
+          revision?: number;
+        };
+        Relationships: [];
+      };
+      saved_sections: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          document: Json;
+          id: string;
+          name: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          document?: Json;
+          id?: string;
+          name: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          document?: Json;
+          id?: string;
+          name?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       page_content: {
         Row: {
           created_at: string;

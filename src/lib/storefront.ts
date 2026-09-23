@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getDefaultPageDocument,
@@ -7,6 +7,11 @@ import {
   type PageDocument,
   type PageId,
 } from "@/lib/page-editor";
+import {
+  builderDocumentSchema,
+  isBuilderDocument,
+  type BuilderDocument,
+} from "@/lib/builder/types";
 
 export interface ThemeSettings {
   primary_accent: string;
@@ -14,6 +19,17 @@ export interface ThemeSettings {
   bg_color: string;
   ink_color: string;
   card_border: string;
+  /* Typography, spacing and shape. Optional so settings saved before these
+     existed keep loading; `defaultTheme` supplies the fallbacks. */
+  font_display?: string;
+  font_body?: string;
+  font_mono?: string;
+  base_font_size?: string;
+  heading_scale?: string;
+  body_line_height?: string;
+  radius?: string;
+  section_spacing?: string;
+  container_width?: string;
 }
 
 export interface ContactSettings {
@@ -78,6 +94,15 @@ export interface AutomationSettings {
 }
 
 export const defaultTheme: ThemeSettings = {
+  font_display: "TASA Explorer",
+  font_body: "Cairo",
+  font_mono: "IBM Plex Mono",
+  base_font_size: "16px",
+  heading_scale: "1",
+  body_line_height: "1.6",
+  radius: "16px",
+  section_spacing: "80px",
+  container_width: "1400px",
   primary_accent: "#ED1D2B",
   secondary_accent: "#FAA91C",
   bg_color: "#FCFCFA",
@@ -99,10 +124,10 @@ export const defaultNavigation: NavigationItem[] = [
 ];
 
 export const defaultSeo: SeoSettings = {
-  title: "Triad Studio — We brand. You stand out.",
+  title: "Triad Brands — We brand. You stand out.",
   description: "Branding, print, digital design, and branded merchandise from Nairobi.",
-  copyright: "© 2026 Triad Studio",
-  studio: "Triad Studio, Nairobi",
+  copyright: "© 2026 Triad Brands",
+  studio: "Triad Brands, Nairobi",
 };
 
 export const defaultSocials: SocialSettings = {
@@ -263,6 +288,27 @@ async function fetchSettings() {
   };
 }
 
+/**
+ * Force every copy of the site settings (logo, favicon, nav, contacts, footer)
+ * to refetch after a CMS save or a Realtime change.
+ *
+ * Don't `removeQueries` first: once the query is gone, the invalidation finds
+ * nothing to refetch, and components already on screen keep rendering the old
+ * logo. Plain invalidation keeps the current values until the fresh ones land,
+ * so the page swaps straight to the new logo instead of flashing back to the
+ * built-in defaults. `refetchType: "all"` also refreshes copies that aren't
+ * mounted right now — e.g. the public site's settings in an admin's tab — so
+ * clicking through to the live site after an upload shows the new logo
+ * immediately rather than the old one for a moment.
+ */
+export function resetSiteSettingsCache(queryClient: QueryClient) {
+  return queryClient.invalidateQueries({
+    queryKey: ["site-settings"],
+    exact: true,
+    refetchType: "all",
+  });
+}
+
 export function useSiteSettings() {
   return useQuery({ queryKey: ["site-settings"], queryFn: fetchSettings, staleTime: 30_000 });
 }
@@ -296,8 +342,15 @@ export function useSections() {
   });
 }
 
+/**
+ * A published page is either a legacy section document (v1) or a builder
+ * element tree (v2). Both shapes stay renderable so pages published before the
+ * visual builder keep working untouched.
+ */
+export type PublishedDocument = PageDocument | BuilderDocument;
+
 export function usePublishedPage(pageId: PageId) {
-  return useQuery<PageDocument | null>({
+  return useQuery<PublishedDocument | null>({
     queryKey: ["published-page-document", pageId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -307,10 +360,40 @@ export function usePublishedPage(pageId: PageId) {
         .maybeSingle();
       if (error) throw new Error(error.message);
       if (!data?.document) return null;
-      return normalizePageDocument(data.document, getDefaultPageDocument(pageId));
+      if (isBuilderDocument(data.document)) {
+        const parsed = builderDocumentSchema.safeParse(data.document);
+        if (parsed.success) return parsed.data;
+      }
+      return normalizePageDocument(
+        coerceLegacyDocument(data.document),
+        getDefaultPageDocument(pageId),
+      );
     },
     staleTime: 30_000,
   });
+}
+
+/**
+ * Older migrations seeded page documents with a bumped `version` while keeping
+ * the v1 `blocks` shape. The v1 schema pins `version` to 1, so those documents
+ * failed validation and silently fell back to the built-in defaults — the
+ * published copy never reached the page. Normalising the marker here keeps that
+ * content renderable.
+ */
+function coerceLegacyDocument(input: unknown) {
+  if (!input || typeof input !== "object") return input;
+  const candidate = input as Record<string, unknown>;
+  if (!Array.isArray(candidate["blocks"]) || candidate["version"] === 1) return input;
+  return { ...candidate, version: 1 };
+}
+
+/**
+ * Blocks for callers that still read the legacy shape. Returns nothing for a
+ * builder document, which carries its content as an element tree instead.
+ */
+export function legacyBlocks(document: PublishedDocument | null | undefined) {
+  if (!document || isBuilderDocument(document)) return [];
+  return document.blocks;
 }
 
 export function useHeroSlides() {
@@ -338,7 +421,14 @@ export function useProducts() {
         .eq("active", true)
         .order("sort_order", { ascending: true });
       if (error) throw new Error(error.message);
-      return (data ?? []) as unknown as DbProduct[];
+      return ((data ?? []) as unknown as DbProduct[]).map((product) => ({
+        ...product,
+        images: product.images?.length
+          ? product.images
+          : product.image_url
+            ? [product.image_url]
+            : [],
+      }));
     },
   });
 }
@@ -384,7 +474,7 @@ export function useStorefrontRealtime() {
     const channel = supabase
       .channel("storefront-sync")
       .on("postgres_changes", { event: "*", schema: "public", table: "site_settings" }, () =>
-        qc.invalidateQueries({ queryKey: ["site-settings"] }),
+        resetSiteSettingsCache(qc),
       )
       .on("postgres_changes", { event: "*", schema: "public", table: "page_sections" }, () =>
         qc.invalidateQueries({ queryKey: ["page-sections"] }),
@@ -419,11 +509,31 @@ export function useLiveTheme() {
   useEffect(() => {
     if (!data?.theme || typeof document === "undefined") return;
     const root = document.documentElement;
-    root.style.setProperty("--cms-accent", data.theme.primary_accent);
-    root.style.setProperty("--cms-accent-2", data.theme.secondary_accent);
-    root.style.setProperty("--cms-paper", data.theme.bg_color);
-    root.style.setProperty("--cms-ink", data.theme.ink_color);
-    root.style.setProperty("--cms-border", data.theme.card_border);
+    const theme = { ...defaultTheme, ...data.theme };
+
+    root.style.setProperty("--cms-accent", theme.primary_accent);
+    root.style.setProperty("--cms-accent-2", theme.secondary_accent);
+    root.style.setProperty("--cms-paper", theme.bg_color);
+    root.style.setProperty("--cms-ink", theme.ink_color);
+    root.style.setProperty("--cms-border", theme.card_border);
+
+    // Typography, spacing and shape. `styles.css` reads these with its own
+    // fallbacks, so an unset token simply leaves the design system default.
+    const tokens: Array<[string, string | undefined]> = [
+      ["--cms-font-display", theme.font_display && `"${theme.font_display}"`],
+      ["--cms-font-body", theme.font_body && `"${theme.font_body}"`],
+      ["--cms-font-mono", theme.font_mono && `"${theme.font_mono}"`],
+      ["--cms-base-font-size", theme.base_font_size],
+      ["--cms-heading-scale", theme.heading_scale],
+      ["--cms-body-line-height", theme.body_line_height],
+      ["--cms-radius", theme.radius],
+      ["--cms-section-spacing", theme.section_spacing],
+      ["--cms-container-width", theme.container_width],
+    ];
+    for (const [name, value] of tokens) {
+      if (value) root.style.setProperty(name, value);
+      else root.style.removeProperty(name);
+    }
   }, [data]);
   return data;
 }

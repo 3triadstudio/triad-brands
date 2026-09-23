@@ -1,34 +1,44 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Facebook, Globe, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+import { LazyBuilderCanvas } from "@/components/builder/LazyBuilderCanvas";
+import { isBuilderDocument } from "@/lib/builder/types";
+import { ArrowUpRight, Globe } from "lucide-react";
+import { commonSocialIcons } from "@/lib/social-icons";
 import { socials } from "@/lib/site-data";
 import { StartProjectDialog } from "@/components/StartProjectDialog";
-import { useSiteSettings, useSocialLinks } from "@/lib/storefront";
+import {
+  defaultContacts,
+  usePublishedPage,
+  useSiteSettings,
+  useSocialLinks,
+} from "@/lib/storefront";
+import { optimizeImageUrl } from "@/lib/utils";
 
 const logoOnDark = "/TRIAD_LOGO_ON DARK.png";
 
 export function SiteFooter() {
+  const { data: region } = usePublishedPage("footer");
   const { data: settings } = useSiteSettings();
   const { data: managedSocialLinks } = useSocialLinks();
-  const email = settings?.contacts.email ?? "hello@triad.studio";
-  const studio = settings?.seo.studio ?? "Nairobi, Kenya";
+  const email = settings?.contacts.email ?? defaultContacts.email;
   const configuredCopyright = settings?.seo.copyright?.trim();
   const copyright =
     configuredCopyright && !/made with|❤️|♥️/iu.test(configuredCopyright)
       ? configuredCopyright
-      : `© ${new Date().getFullYear()} Triad Studio`;
+      : `© ${new Date().getFullYear()} Triad Brands`;
   const footer = settings?.footer;
   const socialLinks = managedSocialLinks?.length
     ? managedSocialLinks
     : socials.map((social) => ({ ...social, icon_key: social.label.toLowerCase() }));
-  const socialIcons = {
-    facebook: Facebook,
-    globe: Globe,
-    instagram: Instagram,
-    linkedin: Linkedin,
-    twitter: Twitter,
-    x: Twitter,
-    youtube: Youtube,
-  } as const;
+  if (isBuilderDocument(region)) {
+    return (
+      <footer id="contact" className="px-3 pb-3 md:px-6 md:pb-6" data-cms-block="global-footer">
+        <div className="mx-auto max-w-[1400px] rounded-[var(--radius)] bg-primary px-6 text-primary-foreground md:px-14">
+          <LazyBuilderCanvas root={region.root} />
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer id="contact" className="px-3 pb-3 md:px-6 md:pb-6" data-cms-block="global-footer">
       <div className="mx-auto max-w-[1400px] rounded-[var(--radius)] bg-primary px-6 py-20 text-primary-foreground md:px-14 md:py-32">
@@ -67,8 +77,10 @@ export function SiteFooter() {
         <div className="mt-20 grid gap-12 border-t border-primary-foreground/15 pt-12 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <img
-              src={settings?.branding.logo_url || logoOnDark}
-              alt="Triad Studio"
+              src={optimizeImageUrl(settings?.branding.logo_url || logoOnDark, 240)}
+              alt="Triad Brands"
+              width={240}
+              height={109}
               className="h-14 w-auto max-w-[220px] object-contain object-left"
               onError={(event) => {
                 event.currentTarget.onerror = null;
@@ -76,7 +88,8 @@ export function SiteFooter() {
               }}
             />
             <p className="mt-6 max-w-xs leading-relaxed opacity-70">
-              Brand, digital and print with a sharper point of view.
+              A Nairobi branding studio: brand identity, print, signage and branded merchandise,
+              designed and produced in house.
             </p>
             <form
               action={`mailto:${email}`}
@@ -110,9 +123,10 @@ export function SiteFooter() {
             <ul className="mt-5 space-y-3">
               {[
                 ["Services", "/solutions"],
-                ["Shop", "/shop"],
-                ["Work", "/work/professional-services-stationery"],
-                ["Contact", "/contact"],
+                ["Shop the catalog", "/shop"],
+                ["Branded apparel", "/category/apparel"],
+                ["Event branding", "/category/event"],
+                ["Corporate gifts", "/category/promo"],
               ].map(([label, href]) => (
                 <li key={href}>
                   <Link
@@ -127,12 +141,12 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <p className="label-mono opacity-60">Studio</p>
+            <p className="label-mono opacity-60">Triad Brands</p>
             <ul className="mt-5 space-y-3">
               {[
-                ["About", "/about"],
+                ["About Triad Brands", "/about"],
+                ["Selected work", "/work/professional-services-stationery"],
                 ["Contact", "/contact"],
-                ["Work", "/work/professional-services-stationery"],
               ].map(([label, href]) => (
                 <li key={href}>
                   <Link
@@ -144,22 +158,20 @@ export function SiteFooter() {
                 </li>
               ))}
             </ul>
-            <p className="mt-8 text-sm opacity-60">{studio}</p>
           </div>
 
           <div>
-            <p className="label-mono opacity-60">Social & Support</p>
+            <p className="label-mono opacity-60">Get in touch</p>
             <a
               href={`mailto:${email}`}
               className="mt-5 inline-flex items-center gap-2 opacity-70 transition-opacity hover:opacity-100"
             >
-              Help with a project
+              Email Triad Brands
               <ArrowUpRight className="h-3.5 w-3.5" />
             </a>
             <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
               {socialLinks.map((s) => {
-                const Icon =
-                  socialIcons[s.icon_key.toLowerCase() as keyof typeof socialIcons] ?? Globe;
+                const Icon = commonSocialIcons[s.icon_key.toLowerCase()] ?? Globe;
                 return (
                   <a
                     key={s.label}

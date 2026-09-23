@@ -1,42 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { usePublishedPage, useSections } from "@/lib/storefront";
+import { legacyBlocks, usePublishedPage, useSections } from "@/lib/storefront";
 import { HeroCarousel } from "@/components/landing/HeroCarousel";
 import { FeaturedSolutions } from "@/components/landing/FeaturedSolutions";
 import { CategoryGrid } from "@/components/landing/CategoryGrid";
 import { PromoBanner } from "@/components/landing/PromoBanner";
 import { ValuePropsRow } from "@/components/landing/ValuePropsRow";
 import { PublishedPage } from "@/components/PublishedPage";
+import { pageCopy, pageSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
   component: Index,
-  head: () => ({
-    meta: [
-      { title: "Triad Studio — Corporate Branding, Print & Merchandise in Nairobi" },
-      {
-        name: "description",
-        content:
-          "Custom embroidery, event banners, branded gifting and office essentials, produced in-house in Nairobi with fast turnaround and bulk order pricing.",
-      },
-      { property: "og:title", content: "Triad Studio — Elevate your corporate identity" },
-      {
-        property: "og:description",
-        content:
-          "Nairobi's in-house workshop for corporate apparel, event gear and branded merchandise. Request a custom quote today.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "/" }],
-  }),
+  head: () => pageSeo(pageCopy.home),
 });
 
 function Index() {
   const { data: sections } = useSections();
   const { data: document } = usePublishedPage("home");
   const fallbackOrder = ["hero", "featured", "categories", "promo", "value_props"];
-  const documentBlocks = document?.blocks ?? [];
-  const order = documentBlocks.map((block) => block.id) ?? fallbackOrder;
+  const documentBlocks = legacyBlocks(document);
+  // `[].map()` is still an array, so `??` never reached the fallback: with no
+  // published home document the homepage rendered an empty <main> — no hero,
+  // no H1 and no indexable copy.
+  const order = documentBlocks.length ? documentBlocks.map((block) => block.id) : fallbackOrder;
   const contentFor = (key: string) =>
     documentBlocks.find((block) => block.id === key)?.content ?? {};
   const designFor = (key: string) => documentBlocks.find((block) => block.id === key)?.design ?? {};
@@ -58,12 +43,11 @@ function Index() {
       case "categories": {
         const categoryItems = documentBlocks.find((block) => block.id === key)?.items;
         const props = {
-          key,
           content: contentFor(key),
           design: designFor(key),
           ...(categoryItems ? { items: categoryItems } : {}),
         };
-        return <CategoryGrid {...props} />;
+        return <CategoryGrid key={key} {...props} />;
       }
       case "promo":
         return <PromoBanner key={key} content={contentFor(key)} design={designFor(key)} />;
@@ -71,12 +55,11 @@ function Index() {
         const valuePropsBlock = documentBlocks.find((block) => block.id === key);
         const valuePropsItems = valuePropsBlock?.items;
         const props = {
-          key,
           content: contentFor(key),
           design: designFor(key),
           ...(valuePropsItems ? { items: valuePropsItems } : {}),
         };
-        return <ValuePropsRow {...props} />;
+        return <ValuePropsRow key={key} {...props} />;
       }
       default:
         return null;

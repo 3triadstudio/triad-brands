@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.triadbrands.co.ke/</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/about</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/solutions</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/contact</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/shop</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/category/apparel</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/category/drinkware</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/category/event</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/category/promo</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/work/professional-services-stationery</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/work/conference-signage</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/work/retail-merch-capsule</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/cookies</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/privacy-policy</loc></url>
-  <url><loc>https://www.triadbrands.co.ke/terms</loc></url>
+  <url><loc>https://www.triadbrands.co.ke/</loc><lastmod>2026-09-21</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/solutions</loc><lastmod>2026-09-21</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/shop</loc><lastmod>2026-09-21</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/about</loc><lastmod>2026-09-21</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/contact</loc><lastmod>2026-09-21</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/category/apparel</loc><lastmod>2026-09-21</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/category/drinkware</loc><lastmod>2026-09-21</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/category/event</loc><lastmod>2026-09-21</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/category/promo</loc><lastmod>2026-09-21</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/work/professional-services-stationery</loc><lastmod>2026-09-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/work/conference-signage</loc><lastmod>2026-09-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/work/retail-merch-capsule</loc><lastmod>2026-09-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/cookies</loc><lastmod>2026-09-21</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/privacy-policy</loc><lastmod>2026-09-21</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.triadbrands.co.ke/terms</loc><lastmod>2026-09-21</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>

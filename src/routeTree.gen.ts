@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as HomeRouteImport } from './routes/home'
@@ -28,13 +27,13 @@ import { Route as WorkSlugRouteImport } from './routes/work.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminBuilderRouteImport } from './routes/_authenticated/admin.builder'
 import { Route as AuthenticatedAdminCatalogRouteImport } from './routes/_authenticated/admin.catalog'
-import { Route as AuthenticatedAdminProjectsRouteImport } from './routes/_authenticated/admin.projects'
-import { Route as AuthenticatedAdminSectionsRouteImport } from './routes/_authenticated/admin.sections'
+import { Route as AuthenticatedAdminHeroRouteImport } from './routes/_authenticated/admin.hero'
+import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
 import { Route as AuthenticatedAdminServicesRouteImport } from './routes/_authenticated/admin.services'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminSocialsRouteImport } from './routes/_authenticated/admin.socials'
-import { Route as AuthenticatedAdminThemeRouteImport } from './routes/_authenticated/admin.theme'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
-import { Route as AuthenticatedAdminWhatsappRouteImport } from './routes/_authenticated/admin.whatsapp'
+import { Route as AuthenticatedAdminWorkRouteImport } from './routes/_authenticated/admin.work'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -48,11 +47,6 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -132,22 +126,26 @@ const AuthenticatedAdminCatalogRoute =
     path: '/catalog',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminProjectsRoute =
-  AuthenticatedAdminProjectsRouteImport.update({
-    id: '/projects',
-    path: '/projects',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSectionsRoute =
-  AuthenticatedAdminSectionsRouteImport.update({
-    id: '/sections',
-    path: '/sections',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
+const AuthenticatedAdminHeroRoute = AuthenticatedAdminHeroRouteImport.update({
+  id: '/hero',
+  path: '/hero',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminServicesRoute =
   AuthenticatedAdminServicesRouteImport.update({
     id: '/services',
     path: '/services',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminSocialsRoute =
@@ -156,27 +154,20 @@ const AuthenticatedAdminSocialsRoute =
     path: '/socials',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminThemeRoute = AuthenticatedAdminThemeRouteImport.update({
-  id: '/theme',
-  path: '/theme',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedAdminWhatsappRoute =
-  AuthenticatedAdminWhatsappRouteImport.update({
-    id: '/whatsapp',
-    path: '/whatsapp',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
+const AuthenticatedAdminWorkRoute = AuthenticatedAdminWorkRouteImport.update({
+  id: '/work',
+  path: '/work',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/home': typeof HomeRoute
@@ -191,19 +182,18 @@ export interface FileRoutesByFullPath {
   '/shop/': typeof ShopIndexRoute
   '/admin/builder': typeof AuthenticatedAdminBuilderRoute
   '/admin/catalog': typeof AuthenticatedAdminCatalogRoute
-  '/admin/projects': typeof AuthenticatedAdminProjectsRoute
-  '/admin/sections': typeof AuthenticatedAdminSectionsRoute
+  '/admin/hero': typeof AuthenticatedAdminHeroRoute
+  '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/services': typeof AuthenticatedAdminServicesRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/socials': typeof AuthenticatedAdminSocialsRoute
-  '/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/admin/whatsapp': typeof AuthenticatedAdminWhatsappRoute
+  '/admin/work': typeof AuthenticatedAdminWorkRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/home': typeof HomeRoute
@@ -217,13 +207,13 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopIndexRoute
   '/admin/builder': typeof AuthenticatedAdminBuilderRoute
   '/admin/catalog': typeof AuthenticatedAdminCatalogRoute
-  '/admin/projects': typeof AuthenticatedAdminProjectsRoute
-  '/admin/sections': typeof AuthenticatedAdminSectionsRoute
+  '/admin/hero': typeof AuthenticatedAdminHeroRoute
+  '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/services': typeof AuthenticatedAdminServicesRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/socials': typeof AuthenticatedAdminSocialsRoute
-  '/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/admin/whatsapp': typeof AuthenticatedAdminWhatsappRoute
+  '/admin/work': typeof AuthenticatedAdminWorkRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -231,7 +221,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/home': typeof HomeRoute
@@ -246,13 +235,13 @@ export interface FileRoutesById {
   '/shop/': typeof ShopIndexRoute
   '/_authenticated/admin/builder': typeof AuthenticatedAdminBuilderRoute
   '/_authenticated/admin/catalog': typeof AuthenticatedAdminCatalogRoute
-  '/_authenticated/admin/projects': typeof AuthenticatedAdminProjectsRoute
-  '/_authenticated/admin/sections': typeof AuthenticatedAdminSectionsRoute
+  '/_authenticated/admin/hero': typeof AuthenticatedAdminHeroRoute
+  '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/services': typeof AuthenticatedAdminServicesRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/socials': typeof AuthenticatedAdminSocialsRoute
-  '/_authenticated/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/_authenticated/admin/whatsapp': typeof AuthenticatedAdminWhatsappRoute
+  '/_authenticated/admin/work': typeof AuthenticatedAdminWorkRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -260,7 +249,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
-    | '/auth'
     | '/contact'
     | '/cookies'
     | '/home'
@@ -275,19 +263,18 @@ export interface FileRouteTypes {
     | '/shop/'
     | '/admin/builder'
     | '/admin/catalog'
-    | '/admin/projects'
-    | '/admin/sections'
+    | '/admin/hero'
+    | '/admin/leads'
     | '/admin/services'
+    | '/admin/settings'
     | '/admin/socials'
-    | '/admin/theme'
     | '/admin/users'
-    | '/admin/whatsapp'
+    | '/admin/work'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
-    | '/auth'
     | '/contact'
     | '/cookies'
     | '/home'
@@ -301,20 +288,19 @@ export interface FileRouteTypes {
     | '/shop'
     | '/admin/builder'
     | '/admin/catalog'
-    | '/admin/projects'
-    | '/admin/sections'
+    | '/admin/hero'
+    | '/admin/leads'
     | '/admin/services'
+    | '/admin/settings'
     | '/admin/socials'
-    | '/admin/theme'
     | '/admin/users'
-    | '/admin/whatsapp'
+    | '/admin/work'
     | '/admin'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/about'
-    | '/auth'
     | '/contact'
     | '/cookies'
     | '/home'
@@ -329,13 +315,13 @@ export interface FileRouteTypes {
     | '/shop/'
     | '/_authenticated/admin/builder'
     | '/_authenticated/admin/catalog'
-    | '/_authenticated/admin/projects'
-    | '/_authenticated/admin/sections'
+    | '/_authenticated/admin/hero'
+    | '/_authenticated/admin/leads'
     | '/_authenticated/admin/services'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/socials'
-    | '/_authenticated/admin/theme'
     | '/_authenticated/admin/users'
-    | '/_authenticated/admin/whatsapp'
+    | '/_authenticated/admin/work'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -343,7 +329,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
-  AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
   HomeRoute: typeof HomeRoute
@@ -378,13 +363,6 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -492,18 +470,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCatalogRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/projects': {
-      id: '/_authenticated/admin/projects'
-      path: '/projects'
-      fullPath: '/admin/projects'
-      preLoaderRoute: typeof AuthenticatedAdminProjectsRouteImport
+    '/_authenticated/admin/hero': {
+      id: '/_authenticated/admin/hero'
+      path: '/hero'
+      fullPath: '/admin/hero'
+      preLoaderRoute: typeof AuthenticatedAdminHeroRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/sections': {
-      id: '/_authenticated/admin/sections'
-      path: '/sections'
-      fullPath: '/admin/sections'
-      preLoaderRoute: typeof AuthenticatedAdminSectionsRouteImport
+    '/_authenticated/admin/leads': {
+      id: '/_authenticated/admin/leads'
+      path: '/leads'
+      fullPath: '/admin/leads'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/services': {
@@ -513,18 +491,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminServicesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/socials': {
       id: '/_authenticated/admin/socials'
       path: '/socials'
       fullPath: '/admin/socials'
       preLoaderRoute: typeof AuthenticatedAdminSocialsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/theme': {
-      id: '/_authenticated/admin/theme'
-      path: '/theme'
-      fullPath: '/admin/theme'
-      preLoaderRoute: typeof AuthenticatedAdminThemeRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/users': {
@@ -534,11 +512,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/whatsapp': {
-      id: '/_authenticated/admin/whatsapp'
-      path: '/whatsapp'
-      fullPath: '/admin/whatsapp'
-      preLoaderRoute: typeof AuthenticatedAdminWhatsappRouteImport
+    '/_authenticated/admin/work': {
+      id: '/_authenticated/admin/work'
+      path: '/work'
+      fullPath: '/admin/work'
+      preLoaderRoute: typeof AuthenticatedAdminWorkRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
   }
@@ -547,26 +525,26 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBuilderRoute: typeof AuthenticatedAdminBuilderRoute
   AuthenticatedAdminCatalogRoute: typeof AuthenticatedAdminCatalogRoute
-  AuthenticatedAdminProjectsRoute: typeof AuthenticatedAdminProjectsRoute
-  AuthenticatedAdminSectionsRoute: typeof AuthenticatedAdminSectionsRoute
+  AuthenticatedAdminHeroRoute: typeof AuthenticatedAdminHeroRoute
+  AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminServicesRoute: typeof AuthenticatedAdminServicesRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSocialsRoute: typeof AuthenticatedAdminSocialsRoute
-  AuthenticatedAdminThemeRoute: typeof AuthenticatedAdminThemeRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
-  AuthenticatedAdminWhatsappRoute: typeof AuthenticatedAdminWhatsappRoute
+  AuthenticatedAdminWorkRoute: typeof AuthenticatedAdminWorkRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBuilderRoute: AuthenticatedAdminBuilderRoute,
   AuthenticatedAdminCatalogRoute: AuthenticatedAdminCatalogRoute,
-  AuthenticatedAdminProjectsRoute: AuthenticatedAdminProjectsRoute,
-  AuthenticatedAdminSectionsRoute: AuthenticatedAdminSectionsRoute,
+  AuthenticatedAdminHeroRoute: AuthenticatedAdminHeroRoute,
+  AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminServicesRoute: AuthenticatedAdminServicesRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSocialsRoute: AuthenticatedAdminSocialsRoute,
-  AuthenticatedAdminThemeRoute: AuthenticatedAdminThemeRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
-  AuthenticatedAdminWhatsappRoute: AuthenticatedAdminWhatsappRoute,
+  AuthenticatedAdminWorkRoute: AuthenticatedAdminWorkRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
@@ -588,7 +566,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
-  AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
   HomeRoute: HomeRoute,

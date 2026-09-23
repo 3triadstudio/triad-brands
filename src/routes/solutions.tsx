@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { services, process } from "@/lib/site-data";
 import { useServices, usePublishedPage } from "@/lib/storefront";
 import { PublishedPage } from "@/components/PublishedPage";
+import { pageCopy, pageSeo } from "@/lib/seo";
 import { StartProjectDialog } from "@/components/StartProjectDialog";
 import {
   Dialog,
@@ -15,26 +16,7 @@ import {
 
 export const Route = createFileRoute("/solutions")({
   component: ServicesPage,
-  head: () => ({
-    meta: [
-      { title: "Services — Branding, Digital, Print & Merch | Triad Studio" },
-      {
-        name: "description",
-        content:
-          "Brand identity, digital design, print production, large format, branded merchandise, event collateral, art direction and brand rollout — all from one Nairobi studio.",
-      },
-      { property: "og:title", content: "Services — Triad Studio" },
-      {
-        property: "og:description",
-        content:
-          "Eight disciplines under one roof: identity, digital, print, large format, merch, events, art direction and rollout.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/solutions" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "/solutions" }],
-  }),
+  head: () => pageSeo(pageCopy.solutions),
 });
 
 function ServicesPage() {
@@ -55,15 +37,16 @@ function ServicesPage() {
           impossible to miss<span className="text-accent">.</span>
         </h1>
         <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Strategy, design and production in one connected team. Bring us the brief, the deadline,
-          or the problem that still feels fuzzy. We will turn it into something people can see, use
-          and remember.
+          Brand identity, digital design, print production, large-format signage and branded
+          merchandise, handled by one team in Nairobi. Bring us the brief, the deadline, or the
+          problem that still feels fuzzy — we turn it into something people can see, use and
+          remember.
         </p>
         <div className="mt-10 flex flex-wrap gap-2 text-muted-foreground">
-          <span className="chip">Identity</span>
-          <span className="chip">Digital</span>
-          <span className="chip">Production</span>
-          <span className="chip">Merchandise</span>
+          <span className="chip">Brand identity</span>
+          <span className="chip">Digital design</span>
+          <span className="chip">Print production</span>
+          <span className="chip">Branded merchandise</span>
         </div>
       </section>
 
@@ -136,7 +119,9 @@ function ServicesPage() {
 
       <section className="px-3 pb-24 md:px-6 md:pb-32">
         <div className="mx-auto max-w-[1400px] rounded-[var(--radius)] bg-muted/50 px-6 py-20 md:px-14 md:py-28">
-          <p className="label-mono text-accent">From first question to final delivery</p>
+          <p className="label-mono text-accent">
+            How a project runs, from first question to final delivery
+          </p>
           <div className="mt-12 grid gap-12 md:grid-cols-3">
             {process.map((p) => (
               <div key={p.n} className="border-t border-border pt-6">

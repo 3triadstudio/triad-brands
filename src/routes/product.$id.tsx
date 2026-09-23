@@ -2,9 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { ArrowLeft, ChevronUp, ChevronDown, Send } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { logClick, useProducts, useSiteSettings, usePublishedPage, waLink } from "@/lib/storefront";
+import {
+  legacyBlocks,
+  logClick,
+  useProducts,
+  useSiteSettings,
+  usePublishedPage,
+  waLink,
+} from "@/lib/storefront";
+import type { DbProduct } from "@/lib/storefront";
+import { supabase } from "@/integrations/supabase/client";
 import { addToCart } from "@/lib/cart";
 import { formatKES } from "@/lib/catalog-data";
+import { breadcrumbLd, pageSeo, productLd } from "@/lib/seo";
 import type { CarouselApi } from "@/components/ui/carousel";
 import {
   Carousel,
@@ -16,6 +26,80 @@ import {
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductConfigurator,
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", params.id)
+      .eq("active", true)
+      .maybeSingle();
+    if (!data) return { product: null };
+    const product = data as unknown as DbProduct;
+    return {
+      product: {
+        ...product,
+        images: product.images?.length
+          ? product.images
+          : product.image_url
+            ? [product.image_url]
+            : [],
+      },
+    };
+  },
+  head: ({ params, loaderData }) => {
+    const product = loaderData?.product ?? null;
+    const productName = product?.title ?? "Product";
+    const productSummary =
+      product?.subtitle ||
+      product?.description ||
+      "Custom branded merchandise produced in Nairobi by Triad Brands, with bulk pricing and delivery across Kenya.";
+    const ogImage = product?.images?.[0];
+    const price =
+      product && product.sale_price !== null && product.sale_price < product.price_from
+        ? product.sale_price
+        : (product?.price_from ?? 0);
+    const scripts = product
+      ? [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify(
+              productLd({
+                id: product.id,
+                name: product.title,
+                description: productSummary,
+                images: product.images.map((src) =>
+                  src.startsWith("http") ? src : `https://www.triadbrands.co.ke${src}`,
+                ),
+                sku: product.sku,
+                price,
+                inStock: (product.stock_quantity ?? 0) > 0,
+              }),
+            ),
+          },
+          {
+            type: "application/ld+json",
+            children: JSON.stringify(
+              breadcrumbLd([
+                { name: "Home", path: "/" },
+                { name: "Shop", path: "/shop" },
+                { name: product.title, path: `/product/${params.id}` },
+              ]),
+            ),
+          },
+        ]
+      : [];
+    const seo = pageSeo({
+      path: `/product/${params.id}`,
+      title: product
+        ? `${productName} | Branded Merchandise Nairobi | Triad Brands`
+        : `${productName} | Triad Brands`,
+      description: productSummary,
+      type: "product",
+      ...(ogImage ? { image: ogImage } : {}),
+      ...(product ? {} : { robots: "noindex, follow" }),
+    });
+    return { ...seo, scripts };
+  },
 });
 
 function ProductConfigurator() {
@@ -24,7 +108,7 @@ function ProductConfigurator() {
   const { data: settings } = useSiteSettings();
   const { data: pageDocument } = usePublishedPage("product");
   const product = products?.find((p) => p.id === id);
-  const productBlock = pageDocument?.blocks.find((block) => block.id === "product_detail");
+  const productBlock = legacyBlocks(pageDocument).find((block) => block.id === "product_detail");
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -41,6 +125,10 @@ function ProductConfigurator() {
   const [notes, setNotes] = useState("");
   const maxQuantity =
     product?.stock_quantity && product.stock_quantity > 0 ? product.stock_quantity : 999;
+  const unitPrice =
+    product && product.sale_price !== null && product.sale_price < product.price_from
+      ? product.sale_price
+      : (product?.price_from ?? 0);
 
   // Update current index when carousel changes
   useEffect(() => {
@@ -78,13 +166,13 @@ function ProductConfigurator() {
 
   const handleOrderViaWhatsApp = () => {
     const message = [
-      product.whatsapp_payload || "Hello Triad Studio, I'd like to order a product.",
+      product.whatsapp_payload || "Hello Triad Brands, I'd like to order a product.",
       `Product: ${product.title}`,
       `Quantity: ${quantity}`,
       `Size: ${selectedSize}`,
       `Color: ${selectedColor}`,
       `Special requests: ${notes || "None"}`,
-      `Price estimate: From ${formatKES(product.price_from * quantity)}`,
+      `Price estimate: From ${formatKES(unitPrice * quantity)}`,
     ].join("\n");
 
     void logClick({
@@ -100,7 +188,7 @@ function ProductConfigurator() {
     addToCart({
       id: product.id,
       title: product.title,
-      from: product.price_from,
+      from: unitPrice,
       quantity,
       size: selectedSize,
       color: selectedColor,
@@ -191,7 +279,12 @@ function ProductConfigurator() {
               <div className="mt-6">
                 <p className="label-mono text-muted-foreground">Starting from</p>
                 <p className="text-3xl font-bold text-foreground">
-                  {formatKES(product.price_from)}
+                  {formatKES(unitPrice)}
+                  {product.sale_price !== null && product.sale_price < product.price_from ? (
+                    <span className="ml-2 text-base font-normal text-muted-foreground line-through">
+                      {formatKES(product.price_from)}
+                    </span>
+                  ) : null}
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {product.stock_quantity > 0

@@ -1,41 +1,63 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Link2, Plus } from "lucide-react";
+import { Link2, Pencil, Plus, Trash2 } from "lucide-react";
+import { DynamicIcon, type IconName } from "lucide-react/dynamic";
 import { toast } from "sonner";
-import { deleteSocial, listAllSocials, upsertSocial } from "@/lib/admin.functions";
-import { AdminModal, Field, RowActions, inputClass } from "@/components/admin/AdminField";
-import { AdminPage, EmptyState, Panel, PanelHeading, StatusPill } from "@/components/admin/ui";
+import { deleteSocialLink, listAllSocialLinks, upsertSocialLink } from "@/lib/admin.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { IconPicker } from "@/components/admin/IconPicker";
+import {
+  AdminPage,
+  AdminLoading,
+  EmptyState,
+  Field,
+  Modal,
+  ModalFooter,
+  Panel,
+  PanelHeading,
+  StatusPill,
+  inputClass,
+} from "@/components/admin/ui";
 
-export const Route = createFileRoute("/_authenticated/admin/socials")({
-  component: SocialsAdmin,
-});
+export const Route = createFileRoute("/_authenticated/admin/socials")({ component: SocialsAdmin });
 
-interface Row {
+type Row = {
   id?: string;
   label: string;
   href: string;
   icon_key: string;
   sort_order: number;
   active: boolean;
-}
+};
 
 const blank: Row = { label: "", href: "", icon_key: "globe", sort_order: 0, active: true };
 
 function SocialsAdmin() {
-  const list = useServerFn(listAllSocials);
-  const save = useServerFn(upsertSocial);
-  const remove = useServerFn(deleteSocial);
+  const list = useServerFn(listAllSocialLinks);
+  const save = useServerFn(upsertSocialLink);
+  const remove = useServerFn(deleteSocialLink);
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Row | null>(null);
   const [deleting, setDeleting] = useState<Row | null>(null);
 
   const { data, isPending } = useQuery({ queryKey: ["admin-socials"], queryFn: () => list({}) });
 
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-socials-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "social_links" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin-socials"] }),
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [qc]);
+
   const mutate = useMutation({
-    mutationFn: (row: Row) =>
-      save({ data: { ...row, sort_order: Number(row.sort_order) || 0 } as never }),
+    mutationFn: (row: Row) => save({ data: row as never }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-socials"] });
       setDraft(null);
@@ -43,225 +65,186 @@ function SocialsAdmin() {
     },
     onError: () => toast.error("Could not save link"),
   });
-
   const destroy = useMutation({
     mutationFn: (id: string) => remove({ data: { id } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-socials"] });
       toast.success("Link deleted");
-      setDeleting(null);
     },
     onError: () => toast.error("Could not delete link"),
   });
 
-  if (isPending) return <p className="text-sm text-[#94A3B8]">Loading links…</p>;
   const rows = (data ?? []) as Row[];
 
   return (
     <AdminPage
-      eyebrow="Social distribution"
+      eyebrow="Distribution"
       title="Keep every public doorway current."
-      description="Manage the links that connect the studio to its wider network, with clear visibility and order."
+      description="Links that connect the brand to its wider network, shown in the footer."
       action={
         <button
           type="button"
           onClick={() => setDraft({ ...blank })}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#FF7A00] px-4 py-3 text-xs font-semibold text-[#0F1217]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#111827] px-4 text-xs font-semibold text-white hover:bg-[#1F2937]"
         >
-          <Plus className="h-3.5 w-3.5" /> New link
+          <Plus className="h-3.5 w-3.5" aria-hidden="true" /> New link
         </button>
       }
     >
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Mini label="Total links" value={rows.length} />
-        <Mini label="Active" value={rows.filter((row) => row.active).length} tone="green" />
-        <Mini label="Hidden" value={rows.filter((row) => !row.active).length} tone="amber" />
-      </div>
       <Panel>
         <PanelHeading
           icon={Link2}
           title="Social link registry"
-          detail={`${rows.length} destinations · footer and social surfaces`}
-          action={<StatusPill status="Public links" />}
+          detail={`${rows.length} destinations`}
+          action={<StatusPill status="Realtime connected" />}
         />
-        <div className="space-y-4 p-4 md:p-6">
-          {draft && (
-            <AdminModal
-              title={draft.id ? "Edit social link" : "New social link"}
-              subtitle="Manage a link displayed in the public footer."
-              onClose={() => setDraft(null)}
-            >
-              <SocialForm
-                row={draft}
-                onSave={(r) => mutate.mutate(r)}
-                onCancel={() => setDraft(null)}
-                saving={mutate.isPending}
-              />
-            </AdminModal>
-          )}
-          {rows.map((r) => (
-            <article
-              key={r.id!}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius)] border border-border p-5"
-            >
-              <div>
-                <p className="font-medium">{r.label || "Untitled link"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {r.href || "No URL"} · {r.active ? "Active" : "Inactive"}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDraft({ ...r })}
-                  className="label-mono rounded-full border border-border px-4 py-2"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeleting(r)}
-                  className="label-mono rounded-full border border-white/10 px-4 py-2 text-red-300"
-                >
-                  Delete
-                </button>
-              </div>
-            </article>
-          ))}
-          {rows.length === 0 && !draft ? (
+        <div className="space-y-3 p-4 md:p-6">
+          {isPending ? (
+            <AdminLoading label="Loading links" />
+          ) : rows.length === 0 ? (
             <EmptyState
               title="No social links yet"
-              detail="Add Instagram, LinkedIn, or another public channel to make the footer work harder."
+              detail="Add Instagram, LinkedIn, or another channel to make the footer work harder."
             />
-          ) : null}
-          {deleting && (
-            <AdminModal
-              title="Delete social link?"
-              subtitle={`This will remove ${deleting.label || "this link"} from the public footer.`}
-              onClose={() => setDeleting(null)}
-            >
-              <div className="space-y-5 p-6">
-                <p className="rounded-xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-200">
-                  This action cannot be undone.
-                </p>
-                <div className="flex justify-end gap-2">
+          ) : (
+            rows.map((r) => (
+              <article
+                key={r.id}
+                className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#E5E7EB] bg-white p-5"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#F3F4F6] text-[#4B5563]">
+                    <DynamicIcon
+                      name={(r.icon_key || "globe") as IconName}
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                      fallback={() => <Link2 className="h-4 w-4" aria-hidden="true" />}
+                    />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-[#111827]">
+                      {r.label || "Untitled link"}
+                    </p>
+                    <p className="mt-1 truncate text-xs text-[#6B7280]">{r.href || "No URL"}</p>
+                    <div className="mt-2">
+                      <StatusPill status={r.active ? "Active" : "Inactive"} />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex shrink-0 gap-1">
                   <button
                     type="button"
-                    onClick={() => setDeleting(null)}
-                    className="label-mono rounded-full border border-white/10 px-4 py-2"
+                    onClick={() => setDraft({ ...r })}
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-[#E5E7EB] px-3 text-xs font-semibold text-[#111827] hover:border-[#ED1D2B] hover:text-[#ED1D2B]"
                   >
-                    Cancel
+                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" /> Edit
                   </button>
                   <button
                     type="button"
-                    onClick={() => destroy.mutate(deleting.id!)}
-                    className="label-mono rounded-full bg-red-500 px-4 py-2 text-white"
+                    onClick={() => setDeleting(r)}
+                    className="grid min-h-10 min-w-10 place-items-center rounded-xl text-[#9CA3AF] hover:bg-[#FEF2F2] hover:text-[#991B1B]"
+                    aria-label={`Delete ${r.label}`}
                   >
-                    Confirm delete
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
-              </div>
-            </AdminModal>
+              </article>
+            ))
           )}
         </div>
       </Panel>
-    </AdminPage>
-  );
-}
 
-function Mini({
-  label,
-  value,
-  tone = "neutral",
-}: {
-  label: string;
-  value: number;
-  tone?: "neutral" | "green" | "amber";
-}) {
-  return (
-    <article
-      className={`rounded-2xl border p-4 ${tone === "green" ? "border-emerald-300/20 bg-emerald-400/10" : tone === "amber" ? "border-[#FF7A00]/20 bg-[#FF7A00]/10" : "border-white/[0.08] bg-[#161B22]"}`}
-    >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#64748B]">
-        {label}
-      </p>
-      <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">{value}</p>
-    </article>
-  );
-}
-
-function SocialForm({
-  row,
-  onSave,
-  onDelete,
-  onCancel,
-  saving,
-}: {
-  row: Row;
-  onSave: (row: Row) => void;
-  onDelete?: () => void;
-  onCancel?: () => void;
-  saving?: boolean;
-}) {
-  const [v, setV] = useState<Row>(row);
-  const set = (k: keyof Row, val: unknown) => setV((p) => ({ ...p, [k]: val }));
-
-  return (
-    <article className="grid gap-4 rounded-[var(--radius)] border border-border p-6 md:grid-cols-4">
-      <Field label="Label">
-        <input
-          className={inputClass}
-          value={v.label}
-          onChange={(e) => set("label", e.target.value)}
-        />
-      </Field>
-      <Field label="URL">
-        <input
-          className={inputClass}
-          value={v.href}
-          onChange={(e) => set("href", e.target.value)}
-        />
-      </Field>
-      <Field label="Icon key">
-        <input
-          className={inputClass}
-          value={v.icon_key}
-          placeholder="instagram"
-          onChange={(e) => set("icon_key", e.target.value)}
-        />
-      </Field>
-      <Field label="Sort order">
-        <input
-          type="number"
-          className={inputClass}
-          value={v.sort_order}
-          onChange={(e) => set("sort_order", Number(e.target.value))}
-        />
-      </Field>
-      <div className="flex items-end justify-between gap-3">
-        <label className="label-mono flex items-center gap-2 pb-3">
-          <input
-            type="checkbox"
-            checked={v.active}
-            onChange={(e) => set("active", e.target.checked)}
+      {draft ? (
+        <Modal
+          title={draft.id ? "Edit social link" : "New social link"}
+          subtitle="A link displayed in the public footer."
+          onClose={() => setDraft(null)}
+        >
+          <div className="grid gap-4 p-5 sm:grid-cols-2 md:p-6">
+            <Field label="Label">
+              <input
+                className={inputClass}
+                value={draft.label}
+                onChange={(e) => setDraft({ ...draft, label: e.target.value })}
+              />
+            </Field>
+            <Field label="URL">
+              <input
+                className={inputClass}
+                value={draft.href}
+                onChange={(e) => setDraft({ ...draft, href: e.target.value })}
+              />
+            </Field>
+            <IconPicker
+              label="Icon"
+              value={draft.icon_key}
+              onChange={(icon_key) => setDraft({ ...draft, icon_key })}
+            />
+            <Field label="Sort order">
+              <input
+                type="number"
+                className={inputClass}
+                value={draft.sort_order}
+                onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) })}
+              />
+            </Field>
+            <label className="flex items-center gap-2 text-xs font-semibold text-[#6B7280] sm:col-span-2">
+              <input
+                type="checkbox"
+                checked={draft.active}
+                onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
+              />
+              Active
+            </label>
+          </div>
+          <ModalFooter
+            onCancel={() => setDraft(null)}
+            onSave={() => mutate.mutate(draft)}
+            saving={mutate.isPending}
+            {...(draft.id
+              ? {
+                  onDelete: () => {
+                    setDeleting(draft);
+                    setDraft(null);
+                  },
+                }
+              : {})}
           />
-          Active
-        </label>
-        <RowActions
-          onSave={() => onSave(v)}
-          {...(onDelete ? { onDelete } : {})}
-          saving={!!saving}
-        />
-        {onCancel ? (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="label-mono rounded-full border border-white/10 px-5 py-2.5 text-muted-foreground"
-          >
-            Cancel
-          </button>
-        ) : null}
-      </div>
-    </article>
+        </Modal>
+      ) : null}
+
+      {deleting ? (
+        <Modal
+          title="Delete social link?"
+          subtitle={`This will remove ${deleting.label || "this link"} from the footer.`}
+          onClose={() => setDeleting(null)}
+        >
+          <div className="p-5 md:p-6">
+            <p className="rounded-xl bg-[#FEF2F2] px-4 py-3 text-sm text-[#991B1B]">
+              This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2 border-t border-[#F3F4F6] p-5 md:p-6">
+            <button
+              type="button"
+              onClick={() => setDeleting(null)}
+              className="min-h-10 rounded-xl border border-[#E5E7EB] px-4 text-xs font-semibold text-[#111827] hover:bg-[#F9FAFB]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (deleting.id) destroy.mutate(deleting.id);
+                setDeleting(null);
+              }}
+              className="min-h-10 rounded-xl bg-[#991B1B] px-4 text-xs font-semibold text-white hover:bg-[#7F1D1D]"
+            >
+              Confirm delete
+            </button>
+          </div>
+        </Modal>
+      ) : null}
+    </AdminPage>
   );
 }

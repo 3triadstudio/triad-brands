@@ -48,41 +48,6 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
-      const url = new URL(request.url);
-      const isAdminHost = url.hostname === "admin.triadbrands.co.ke";
-      const isPublicHost =
-        url.hostname === "triadbrands.co.ke" || url.hostname === "www.triadbrands.co.ke";
-
-      const isAdminPath =
-        url.pathname === "/admin" ||
-        url.pathname.startsWith("/admin/") ||
-        url.pathname === "/login" ||
-        url.pathname === "/auth";
-
-      if (isPublicHost && isAdminPath) {
-        const adminUrl = new URL(request.url);
-        adminUrl.hostname = "admin.triadbrands.co.ke";
-        return Response.redirect(adminUrl, 308);
-      }
-
-      if (isAdminHost && url.pathname === "/") {
-        const dashboardUrl = new URL(request.url);
-        dashboardUrl.pathname = "/admin";
-        return Response.redirect(dashboardUrl, 308);
-      }
-
-      const isAdminDocumentPath =
-        isAdminPath ||
-        url.pathname.startsWith("/_serverFn/") ||
-        url.pathname.startsWith("/assets/") ||
-        /\.[a-z0-9]+$/i.test(url.pathname);
-
-      if (isAdminHost && !isAdminDocumentPath) {
-        const publicUrl = new URL(request.url);
-        publicUrl.hostname = "triadbrands.co.ke";
-        return Response.redirect(publicUrl, 308);
-      }
-
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
