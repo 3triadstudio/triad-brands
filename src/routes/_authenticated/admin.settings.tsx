@@ -11,6 +11,7 @@ import {
   defaultFooter,
   defaultSeo,
   defaultTheme,
+  resetSiteSettingsCache,
   type BrandingSettings,
   type ContactSettings,
   type CookieBannerSettings,
@@ -111,7 +112,7 @@ function SiteSettingsAdmin() {
     mutationFn: (input: { key: string; value: unknown }) => save({ data: input }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-site-settings"] });
-      qc.invalidateQueries({ queryKey: ["site-settings"] });
+      resetSiteSettingsCache(qc);
       toast.success("Saved");
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "Could not save"),

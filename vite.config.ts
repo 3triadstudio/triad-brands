@@ -11,6 +11,15 @@ export default defineConfig({
     tanstackStart({ server: { entry: "server" } }),
     react(),
   ],
+  ssr: {
+    // lucide-react has no `exports` map, so its `lucide-react/dynamic` subpath
+    // only resolves through bundler-style extension lookup (-> dynamic.mjs).
+    // Left external, dev SSR hands it to Node's resolver, which doesn't do that
+    // lookup and crashes with "Cannot find module 'lucide-react/dynamic'" —
+    // while the production build (bundled) works, hiding the bug until dev.
+    // Processing lucide through Vite makes dev resolve exactly like the build.
+    noExternal: ["lucide-react"],
+  },
   build: {
     // The shared entry chunk (React, TanStack Router's own route manifest,
     // TanStack Query, Radix UI, Sonner) sits around 600 kB — genuine

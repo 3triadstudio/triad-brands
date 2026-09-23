@@ -163,8 +163,19 @@ function PublicShell() {
   const { data: settings } = useSiteSettings();
 
   useEffect(() => {
-    const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-    if (link && settings?.branding.favicon_url) link.href = settings.branding.favicon_url;
+    if (!settings?.branding.favicon_url) return;
+    // Browsers cache the tab favicon aggressively and, in several of them
+    // (Chrome included), mutating an existing <link>'s `href` doesn't
+    // reliably trigger a re-fetch — the old icon just stays put after a
+    // brand-asset update. Removing the old link and inserting a fresh one
+    // forces a real fetch of the new URL every time.
+    const previous = document.querySelectorAll<HTMLLinkElement>('link[rel="icon"]');
+    const next = document.createElement("link");
+    next.rel = "icon";
+    next.type = settings.branding.favicon_url.endsWith(".svg") ? "image/svg+xml" : "image/png";
+    next.href = settings.branding.favicon_url;
+    document.head.appendChild(next);
+    previous.forEach((link) => link.remove());
   }, [settings?.branding.favicon_url]);
 
   return (

@@ -1,4 +1,6 @@
+import { QueryClient } from "@tanstack/react-query";
 import { getDefaultPageDocument } from "@/lib/page-editor";
+import { resetSiteSettingsCache } from "@/lib/storefront";
 import { migrateDocument, toBuilderDocument } from "@/lib/builder/migrate";
 import { defaultRegionDocument, isRegionId } from "@/lib/builder/regions";
 import { createWidgetElement, getWidget, widgetDefinitions } from "@/lib/builder/registry";
@@ -236,6 +238,23 @@ for (const widget of widgetDefinitions) {
   if (layoutHandled.has(widget.type)) continue;
   check(`${widget.type} is rendered`, rendererSource.includes(`case "${widget.type}":`));
 }
+
+console.log("\n8. site settings cache invalidation (real implementation)");
+// Exercises the real storefront function, not a stub. It must mark the cached
+// settings stale (so the next read refetches fresh branding) while keeping the
+// entry, and must not touch unrelated queries.
+await (async () => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  queryClient.setQueryData(["site-settings"], { branding: { logo_url: "https://old/logo.svg" } });
+  queryClient.setQueryData(["products"], [{ id: "p1" }]);
+  await resetSiteSettingsCache(queryClient).catch(() => {});
+  const settings = queryClient.getQueryState(["site-settings"]);
+  check("site settings are invalidated", settings?.isInvalidated === true);
+  check(
+    "unrelated queries are left alone",
+    queryClient.getQueryState(["products"])?.isInvalidated === false,
+  );
+})();
 
 console.log(failures ? `\n${failures} FAILURE(S)\n` : "\nAll builder checks passed\n");
 process.exit(failures ? 1 : 0);

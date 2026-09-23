@@ -15,10 +15,20 @@ const leadSchema = z.object({
 });
 
 export const submitLead = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => leadSchema.parse(input))
+  .validator((input: unknown) => leadSchema.parse(input))
   .handler(async ({ data }) => {
-    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-    const supabase = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+    // Same fallback chain as the shared client (src/integrations/supabase/client.ts):
+    // runtime server vars first, then the build-time VITE_ values. Without it,
+    // a deployment that only defines the VITE_ names renders every page fine
+    // but fails here — silently breaking the contact form in production.
+    const url = process.env["SUPABASE_URL"] || import.meta.env["VITE_SUPABASE_URL"];
+    const key =
+      process.env["SUPABASE_PUBLISHABLE_KEY"] || import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+    if (!url || !key) {
+      console.error("lead insert skipped: Supabase URL or publishable key is not configured");
+      return { ok: false as const };
+    }
+    const supabase = createClient<Database>(url, key, {
       auth: { persistSession: false, autoRefreshToken: false },
       global: {
         fetch: (input, init) => {

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getDefaultPageDocument,
@@ -288,6 +288,27 @@ async function fetchSettings() {
   };
 }
 
+/**
+ * Force every copy of the site settings (logo, favicon, nav, contacts, footer)
+ * to refetch after a CMS save or a Realtime change.
+ *
+ * Don't `removeQueries` first: once the query is gone, the invalidation finds
+ * nothing to refetch, and components already on screen keep rendering the old
+ * logo. Plain invalidation keeps the current values until the fresh ones land,
+ * so the page swaps straight to the new logo instead of flashing back to the
+ * built-in defaults. `refetchType: "all"` also refreshes copies that aren't
+ * mounted right now — e.g. the public site's settings in an admin's tab — so
+ * clicking through to the live site after an upload shows the new logo
+ * immediately rather than the old one for a moment.
+ */
+export function resetSiteSettingsCache(queryClient: QueryClient) {
+  return queryClient.invalidateQueries({
+    queryKey: ["site-settings"],
+    exact: true,
+    refetchType: "all",
+  });
+}
+
 export function useSiteSettings() {
   return useQuery({ queryKey: ["site-settings"], queryFn: fetchSettings, staleTime: 30_000 });
 }
@@ -453,7 +474,7 @@ export function useStorefrontRealtime() {
     const channel = supabase
       .channel("storefront-sync")
       .on("postgres_changes", { event: "*", schema: "public", table: "site_settings" }, () =>
-        qc.invalidateQueries({ queryKey: ["site-settings"] }),
+        resetSiteSettingsCache(qc),
       )
       .on("postgres_changes", { event: "*", schema: "public", table: "page_sections" }, () =>
         qc.invalidateQueries({ queryKey: ["page-sections"] }),

@@ -32,7 +32,7 @@ export const listBuilderPages = createServerFn({ method: "GET" })
 
 export const getBuilderPage = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => pageInput.parse(input))
+  .validator((input: unknown) => pageInput.parse(input))
   .handler(async ({ data, context }) => {
     const role = await getMyRole(context);
     if (!canViewDashboard(role)) throw new Error("Forbidden");
@@ -57,7 +57,7 @@ export const getBuilderPage = createServerFn({ method: "GET" })
 
 export const saveBuilderDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ pageId: pageIdSchema, document: builderDocumentSchema }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -77,7 +77,7 @@ export const saveBuilderDraft = createServerFn({ method: "POST" })
 
 export const publishBuilderPage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ pageId: pageIdSchema, document: builderDocumentSchema }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -128,7 +128,7 @@ export const publishBuilderPage = createServerFn({ method: "POST" })
 
 export const unpublishBuilderPage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => pageInput.parse(input))
+  .validator((input: unknown) => pageInput.parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase
@@ -141,7 +141,7 @@ export const unpublishBuilderPage = createServerFn({ method: "POST" })
 
 export const listPageRevisions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => pageInput.parse(input))
+  .validator((input: unknown) => pageInput.parse(input))
   .handler(async ({ data, context }) => {
     const role = await getMyRole(context);
     if (!canViewDashboard(role)) throw new Error("Forbidden");
@@ -157,7 +157,7 @@ export const listPageRevisions = createServerFn({ method: "GET" })
 
 export const getPageRevision = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ pageId: pageIdSchema, revision: z.number().int().min(1) }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -193,7 +193,7 @@ export const listSavedSections = createServerFn({ method: "GET" })
 
 export const saveSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ name: z.string().min(1).max(120), document: jsonValueSchema }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -209,7 +209,7 @@ export const saveSection = createServerFn({ method: "POST" })
 
 export const deleteSavedSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("saved_sections").delete().eq("id", data.id);

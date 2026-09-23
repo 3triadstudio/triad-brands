@@ -25,7 +25,7 @@ export const getAdminAccess = createServerFn({ method: "GET" })
 
 export const getDashboardMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ days: z.number().int().min(7).max(90).default(30) }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -112,7 +112,7 @@ const uploadSchema = z.object({
 
 export const uploadAsset = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => uploadSchema.parse(input))
+  .validator((input: unknown) => uploadSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const extension =
@@ -133,7 +133,7 @@ export const uploadAsset = createServerFn({ method: "POST" })
 
 export const listAssets = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({ folder: z.enum(["products", "hero-slides", "branding", "media"]).default("media") })
       .parse(input),
@@ -162,7 +162,7 @@ export const listAssets = createServerFn({ method: "GET" })
 
 export const deleteAsset = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ path: z.string().min(1) }).parse(input))
+  .validator((input: unknown) => z.object({ path: z.string().min(1) }).parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.storage.from("site-assets").remove([data.path]);
@@ -207,7 +207,7 @@ export const listProducts = createServerFn({ method: "GET" })
 
 export const upsertProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => productSchema.parse(input))
+  .validator((input: unknown) => productSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("products").upsert(data as never);
@@ -217,7 +217,7 @@ export const upsertProduct = createServerFn({ method: "POST" })
 
 export const deleteProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("products").delete().eq("id", data.id);
@@ -256,7 +256,7 @@ export const listHeroSlides = createServerFn({ method: "GET" })
 
 export const upsertHeroSlide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => slideSchema.parse(input))
+  .validator((input: unknown) => slideSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("hero_slides").upsert(data as never);
@@ -266,7 +266,7 @@ export const upsertHeroSlide = createServerFn({ method: "POST" })
 
 export const deleteHeroSlide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("hero_slides").delete().eq("id", data.id);
@@ -309,7 +309,7 @@ export const listAllProjects = createServerFn({ method: "GET" })
 
 export const upsertProject = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => projectSchema.parse(input))
+  .validator((input: unknown) => projectSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("projects").upsert(data as never);
@@ -319,7 +319,7 @@ export const upsertProject = createServerFn({ method: "POST" })
 
 export const deleteProject = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("projects").delete().eq("id", data.id);
@@ -355,7 +355,7 @@ export const listAllServices = createServerFn({ method: "GET" })
 
 export const upsertService = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => serviceSchema.parse(input))
+  .validator((input: unknown) => serviceSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("services").upsert(data as never);
@@ -365,7 +365,7 @@ export const upsertService = createServerFn({ method: "POST" })
 
 export const deleteService = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("services").delete().eq("id", data.id);
@@ -400,7 +400,7 @@ export const listAllSocialLinks = createServerFn({ method: "GET" })
 
 export const upsertSocialLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => socialSchema.parse(input))
+  .validator((input: unknown) => socialSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("social_links").upsert(data as never);
@@ -410,7 +410,7 @@ export const upsertSocialLink = createServerFn({ method: "POST" })
 
 export const deleteSocialLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("social_links").delete().eq("id", data.id);
@@ -433,7 +433,7 @@ export const getSiteSettingsAdmin = createServerFn({ method: "GET" })
 
 export const saveSiteSetting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ key: z.string().trim().min(1).max(80), value: z.unknown() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -463,7 +463,7 @@ export const listLeads = createServerFn({ method: "GET" })
 
 export const updateLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -483,7 +483,7 @@ export const updateLead = createServerFn({ method: "POST" })
 
 export const deleteLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("leads").delete().eq("id", data.id);
@@ -505,7 +505,7 @@ export const listWhatsappLeads = createServerFn({ method: "GET" })
 
 export const updateWhatsappLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -525,7 +525,7 @@ export const updateWhatsappLead = createServerFn({ method: "POST" })
 
 export const deleteWhatsappLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("whatsapp_leads").delete().eq("id", data.id);
@@ -565,7 +565,7 @@ const inviteSchema = z.object({
 
 export const inviteUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => inviteSchema.parse(input))
+  .validator((input: unknown) => inviteSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -587,7 +587,7 @@ const assignRoleSchema = z.object({ userId: z.string().uuid(), role: z.enum(APP_
 
 export const assignUserRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => assignRoleSchema.parse(input))
+  .validator((input: unknown) => assignRoleSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     if (data.userId === context.userId) throw new Error("You cannot change your own role.");

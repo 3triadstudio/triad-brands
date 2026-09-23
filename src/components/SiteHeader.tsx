@@ -67,14 +67,14 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 px-3 pt-3 md:px-6 md:pt-5" data-cms-block="global-header">
       <div className="mx-auto max-w-[1400px] rounded-[1.35rem] border border-border bg-background/90 px-4 py-3 shadow-[0_12px_40px_color-mix(in_oklab,var(--foreground)_6%,transparent)] backdrop-blur-xl md:px-5">
-        <div className="flex items-center justify-between gap-4">
-          <Link to="/" className="flex min-w-0 items-center gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <Link to="/" className="flex min-w-0 shrink-0 items-center">
             <img
               src={optimizeImageUrl(settings?.branding.logo_url || logoOnWhite, 180)}
               alt="Triad Brands"
               width={180}
               height={64}
-              className="h-8 w-auto shrink-0 md:h-9"
+              className="h-8 w-auto max-w-[120px] object-contain md:h-9 md:max-w-[180px]"
               onError={(event) => {
                 event.currentTarget.onerror = null;
                 event.currentTarget.src = logoOnWhite;
@@ -82,7 +82,7 @@ export function SiteHeader() {
             />
           </Link>
 
-          <div className="ml-auto flex items-center gap-5 md:gap-7">
+          <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2 sm:gap-3 md:gap-7">
             <nav className="hidden items-center gap-7 md:flex">
               {links.map((n) => (
                 <Link
@@ -103,17 +103,16 @@ export function SiteHeader() {
 
             <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
               {cartItems.length > 0 ? <Cart /> : null}
-              <StartProjectDialog className="label-mono group inline-flex items-center gap-2 rounded-full bg-accent px-4 py-3 text-accent-foreground transition-colors hover:bg-primary md:px-5">
+              <StartProjectDialog className="label-mono group hidden items-center gap-2 rounded-full bg-accent px-4 py-3 text-accent-foreground transition-colors hover:bg-primary sm:inline-flex md:px-5">
                 <>
-                  <span className="hidden sm:inline">Request Quote</span>
-                  <span className="sm:hidden">Quote</span>
+                  <span>Request Quote</span>
                   <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </>
               </StartProjectDialog>
               <button
                 type="button"
                 onClick={() => setMobileOpen((open) => !open)}
-                className="min-h-11 min-w-11 rounded-lg border border-border p-2 text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-border p-2 text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:hidden"
                 aria-label="Toggle navigation"
                 aria-expanded={mobileOpen}
                 aria-controls="mobile-navigation"
